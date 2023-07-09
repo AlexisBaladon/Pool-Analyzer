@@ -1,0 +1,5 @@
+model_name,best_params,train_score,test_score
+Logistic Regression,"{'model__C': 0.1, 'model__max_iter': 1000, 'model__n_jobs': -1, 'model__penalty': 'none', 'model__random_state': 42, 'model__solver': 'lbfgs', 'selector__k': 'all'}",0.9177415002698327,0.8873239436619719
+Random Forest,"{'model__criterion': 'entropy', 'model__max_depth': None, 'model__n_estimators': 500, 'selector__k': 'all'}",0.8762506745817593,0.8619718309859155
+KNN,"{'model__leaf_size': 50, 'model__n_jobs': -1, 'model__n_neighbors': 9, 'model__p': 1, 'model__weights': 'distance', 'selector__k': 40}",0.8402543173232596,0.828169014084507
+SVM,"{'model__C': 1.0, 'model__degree': 3, 'model__gamma': 'scale', 'model__kernel': 'poly', 'model__max_iter': 1000, 'model__random_state': 42, 'selector__k': 'all'}",0.8986440906637885,0.895774647887324
