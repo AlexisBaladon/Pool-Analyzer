@@ -51,7 +51,7 @@ class TrainPipeline:
         with open(model_save_path, 'wb') as f:
             pickle.dump(model, f)
 
-    def run(self):
+    def train(self):
         logger = self.config.logger
 
         if self.config.cache_features:
@@ -63,14 +63,14 @@ class TrainPipeline:
             train_images, test_images = self.data_ingestor.ingest()
 
             logger.info(f'Transforming data with {self.data_transformer.config}')
-            (train_features, test_features), feature_columns = self.data_transformer.transform(train_images, test_images)
+            train_features, test_features = self.data_transformer.transform(train_images, test_images)
 
             logger.info(f'Saving features in {self.config.train_features_save_path} and {self.config.test_features_save_path}')
             self.__save_features(train_features, self.config.train_features_save_path)
             self.__save_features(test_features, self.config.test_features_save_path)
 
-        logger.info(f'Training models with {len(feature_columns)} features with config {self.model_trainer.config}')
-        results, best_model = self.model_trainer.train(train_features, test_features, feature_columns)
+        logger.info(f'Training models with features with config {self.model_trainer.config}')
+        results, best_model = self.model_trainer.train(train_features, test_features)
 
         logger.info(f'Saving results in {self.config.results_save_path}')
         self.__save_results(results, self.config.results_save_path)

@@ -4,10 +4,11 @@ import dataclasses
 from tqdm import tqdm
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
-from sklearn.feature_selection import SelectKBest 
+from sklearn.feature_selection import SelectKBest
+from sklearn.metrics import f1_score, accuracy_score, recall_score, precision_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.base import BaseEstimator, TransformerMixin
+#from sklearn.base import BaseEstimator, TransformerMixin
 
 @dataclasses.dataclass
 class Model:
@@ -29,6 +30,7 @@ class ModelTrainerConfig:
         k_features_grid: list[int],
         feature_selection_score_function: Callable,
         models: list[Model],
+        id_column: str,
         target_column: str, 
         score_criteria: str='accuracy', 
         cv: int=5,
@@ -36,6 +38,7 @@ class ModelTrainerConfig:
         self.k_features_grid = k_features_grid
         self.feature_selection_score_function = feature_selection_score_function
         self.models = models
+        self.id_column = id_column
         self.target_column = target_column
         self.score_criteria = score_criteria
         self.cv = cv
@@ -50,10 +53,12 @@ class ModelTrainer:
     def __init__(self, config: ModelTrainerConfig):
         self.config = config
 
-    def train(self, train_df: pd.DataFrame, test_df: pd.DataFrame, feature_columns: list) -> tuple:
-        results = {'model_name': [], 'best_params': [], 'train_score': [], 'test_score': []}
+    def train(self, train_df: pd.DataFrame, test_df: pd.DataFrame) -> tuple:
+        results = {'model_name': [], 'best_params': [], 'train_score': [], 'test_accuracy_score': [], 
+                   'test_f1_score': [], 'test_recall_score': [], 'test_precision_score': []}
         best_model = None
-        best_score = None
+        best_model_f1 = None
+        feature_columns = list(filter(lambda col: col not in [self.config.target_column,self.config.id_column], train_df.columns))
 
         for model in tqdm(self.config.models):
             pipe = Pipeline([
@@ -73,20 +78,28 @@ class ModelTrainer:
                 param_grid=param_grid, 
                 cv=self.config.cv, 
                 scoring=self.config.score_criteria,
-                verbose=1, 
+                verbose=0, 
                 n_jobs=-1,
             )
 
             grid.fit(train_df[feature_columns], train_df[self.config.target_column])
-            test_score = grid.score(test_df[feature_columns], test_df[self.config.target_column])
-            if best_model is None or test_score > best_score:
+            prediction = grid.predict(test_df[feature_columns])
+            test_f1_score = f1_score(test_df[self.config.target_column], prediction)
+            test_recall_score = recall_score(test_df[self.config.target_column], prediction)
+            test_precision_score = precision_score(test_df[self.config.target_column], prediction)
+            test_accuracy_score = accuracy_score(test_df[self.config.target_column], prediction)
+
+            if best_model is None or test_f1_score > best_model_f1:
                 best_model = model
-                best_score = test_score
+                best_model_f1 = test_f1_score
 
             results['model_name'].append(model.model_name)
             results['best_params'].append(grid.best_params_)
             results['train_score'].append(grid.best_score_)
-            results['test_score'].append(test_score)
+            results['test_accuracy_score'].append(test_accuracy_score)
+            results['test_f1_score'].append(test_f1_score)
+            results['test_recall_score'].append(test_recall_score)
+            results['test_precision_score'].append(test_precision_score)
 
         return results, best_model
         

@@ -92,6 +92,4 @@ class DataTransformer:
         coocurrence_matrix_features_to_extract = self.config.coocurrence_matrix_features
         train_features = self.__transform_split(train_images, gabor_filters, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class)
         test_features = self.__transform_split(test_images, gabor_filters, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class)
-        feature_columns = train_features.columns.tolist()
-        feature_columns.remove('image_id'); feature_columns.remove('label')
-        return (train_features, test_features), feature_columns
+        return (train_features, test_features)

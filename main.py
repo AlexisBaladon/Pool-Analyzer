@@ -13,6 +13,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train or predict with model')
     parser.add_argument('--train', default=False, action='store_true', help='Train model')
     parser.add_argument('--predict', default=False, action='store_true', help='Use model')
+    parser.add_argument('--id_column', type=str, default='image_id', help='ID column name')
     parser.add_argument('--target_column', type=str, default='label', help='Target column name')
     parser.add_argument('--positive_class', type=str, default='pools', help='Positive class name')
     parser.add_argument('--negative_class', type=str, default='no_pools', help='Negative class name')
@@ -25,9 +26,8 @@ def parse_args():
     parser.add_argument('--cache_features', default=False, action='store_true', help='Cache features')
     parser.add_argument('--train_features_save_path', type=str, default=os.path.join('data', 'train_features.csv'), help='Path to save train features')
     parser.add_argument('--test_features_save_path', type=str, default=os.path.join('data', 'test_features.csv'), help='Path to save test features')
-    parser.add_argument('--score_criteria', type=str, default='accuracy', help='Score criteria to select best model')
+    parser.add_argument('--score_criteria', type=str, default='f1_micro', help='Score criteria to select best model')
     parser.add_argument('--cv', type=int, default=5, help='Number of cross validation folds')
-    parser.add_argument('--k_features_grid', nargs='+', type=int, default=[10, 20, 40, 'all'], help='Grid of k features to test')
 
     return vars(parser.parse_args())
 
@@ -36,6 +36,7 @@ def main():
     channel_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'quantile_0.25', 'quantile_0.75', 'iqr']
     histogram_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'R']
     coocurrence_matrix_features = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation']
+    k_features_grid = [10, 20, 40, 'all']
     
     # Data Ingestion
     ingestion_config = data_ingestion.DataIngestionConfig(
@@ -60,9 +61,10 @@ def main():
     # Model Training
     if args['train']:
         model_config = model_training.ModelTrainerConfig(
-            k_features_grid=[10, 20, 40, 'all'],
+            k_features_grid=k_features_grid,
             feature_selection_score_function=mutual_info_classif,
             models=models,
+            id_column=args['id_column'],
             target_column=args['target_column'],
             score_criteria=args['score_criteria'],
             cv=args['cv'],
@@ -83,7 +85,7 @@ def main():
             data_transformer=data_transformer,
             model_trainer=model_trainer,
         )
-        pipeline.run()
+        pipeline.train()
     elif args['predict']:
         print('Prediction pipeline not implemented yet')
         pass
