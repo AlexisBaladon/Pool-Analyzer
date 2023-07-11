@@ -1,9 +1,9 @@
 import dataclasses
 from typing import Callable
 
-from ..feature_extraction import \
+from src.utils.feature_extraction import \
     channel_features, histogram_features, coocurrence_matrix, gabor
-from ..image_processing import augmentation
+from src.utils.image_processing import augmentation
 
 import pandas as pd
 
@@ -105,24 +105,23 @@ class DataTransformer:
         return split_features
 
     def transform(self, train_images: list, test_images: list, augmented_column: str, gabor_column: str) -> tuple[tuple[pd.DataFrame, pd.DataFrame], list[str]]:
+        train_features = self.transform_dataset(train_images, augmented_column, gabor_column)
+        test_features = self.transform_dataset(test_images, augmented_column, gabor_column)
+        return train_features, test_features
+    
+    def transform_dataset(self, images: list, augmented_column: str, gabor_column: str):
         channel_features_to_extract = self.config.channel_features
         histogram_features_to_extract = self.config.histogram_features
         coocurrence_matrix_features_to_extract = self.config.coocurrence_matrix_features
 
         gabor_filters = gabor.create_gaborfilter()
-        train_images_gabor = [(id, gabor.apply_filter(image, gabor_filters), label) for id, image, label in train_images]
-        test_images_gabor = [(id, gabor.apply_filter(image, gabor_filters), label) for id, image, label in test_images]
+        images_gabor = [(id, gabor.apply_filter(image, gabor_filters), label) for id, image, label in images]
 
-        train_features = self.__transform_split(train_images, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column)
-        train_features_gabor = self.__transform_split(train_images_gabor, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column)
-        test_features = self.__transform_split(test_images, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column, augment=False)
-        test_features_gabor = self.__transform_split(test_images_gabor, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column, augment=False)
+        features = self.__transform_split(images, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column)
+        features_gabor = self.__transform_split(images_gabor, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column)
 
-        train_features.loc[:, gabor_column] = [0] * len(train_features)
-        test_features.loc[:, gabor_column] = [0] * len(test_features)
-        train_features_gabor.loc[:, gabor_column] = [1] * len(train_features_gabor)
-        test_features_gabor.loc[:, gabor_column] = [1] * len(test_features_gabor)
+        features.loc[:, gabor_column] = [0] * len(features)
+        features_gabor.loc[:, gabor_column] = [1] * len(features_gabor)
 
-        train_features = pd.concat([train_features, train_features_gabor], ignore_index=True)
-        test_features = pd.concat([test_features, test_features_gabor], ignore_index=True)
-        return train_features, test_features
+        features = pd.concat([features, features_gabor], ignore_index=True)
+        return features

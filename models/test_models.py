@@ -14,7 +14,7 @@ models = [
             'C': [0.1, 0.5, 1.0, 2.0, 5.0],
             'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
             'max_iter': [200, 500, 1000],
-            #'n_jobs': [-1],
+            'n_jobs': [-1],
             'random_state': [42],
         },
     ),
@@ -34,7 +34,7 @@ models = [
             'n_neighbors': [3, 5, 7, 9, 11, 13, 15],
             'weights': ['distance'],
             'p': [1, 2],
-            #'n_jobs': [-1],
+            'n_jobs': [-1],
         },
     ),
     Model(
@@ -56,6 +56,19 @@ models = [
             'criterion': ['gini', 'entropy'],
             'splitter': ['best'],
             'max_depth': [None, 5, 10, 50, 100],
+            'random_state': [42],
+        },
+    )
+]
+
+models_small = [
+    Model(
+        model_name='Decision Tree',
+        model=DecisionTreeClassifier(),
+        model_parameter_grid={
+            'criterion': ['gini'],
+            'splitter': ['best'],
+            'max_depth': [None],
             'random_state': [42],
         },
     )
