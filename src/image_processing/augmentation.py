@@ -1,5 +1,6 @@
 import random
 
+import numpy as np
 from skimage.transform import rotate
 from skimage.util import random_noise
 from skimage import exposure
@@ -30,8 +31,8 @@ def augment_images(
                 weights=[rotation_factor, noise_factor, gamma_factor, gaussian_factor]
             )[0]
             augmented_image = augmentation_functions[function](image)
-            min_image, max_image = min(augmented_image), max(augmented_image)
+            min_image, max_image = np.min(augmented_image), np.max(augmented_image)
             augmented_image = ((augmented_image - min_image) / (max_image - min_image)) * 255
             augmented_image = augmented_image.astype('uint8')
-            augmented_images.append((image_dir, augmented_image, label, image))
+            augmented_images.append((image_dir, augmented_image, label))
     return augmented_images

@@ -31,12 +31,13 @@ def parse_args():
 
     return vars(parser.parse_args())
 
-def main():
-    args = parse_args()
+def main(args):
     channel_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'quantile_0.25', 'quantile_0.75', 'iqr']
     histogram_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'R']
     coocurrence_matrix_features = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation']
-    k_features_grid = [10, 20, 40, 'all']
+    k_features_grid = [40, 50, 60, 'all']
+    use_gabor_grid = [0, 1]
+    use_augmentation_grid = [0, 1]
     
     # Data Ingestion
     ingestion_config = data_ingestion.DataIngestionConfig(
@@ -62,6 +63,8 @@ def main():
     if args['train']:
         model_config = model_training.ModelTrainerConfig(
             k_features_grid=k_features_grid,
+            use_gabor_grid=use_gabor_grid,
+            use_augmentation_grid=use_augmentation_grid,
             feature_selection_score_function=mutual_info_classif,
             models=models,
             id_column=args['id_column'],
@@ -93,4 +96,5 @@ def main():
         print('No action selected')
 
 if __name__ == '__main__':
-    main()
+    args = parse_args()
+    main(args)

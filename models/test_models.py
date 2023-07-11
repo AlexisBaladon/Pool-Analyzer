@@ -1,8 +1,3 @@
-
-#import sys
-# if '..' not in sys.path:
-#     sys.path.append('..')
-
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -19,7 +14,7 @@ models = [
             'C': [0.1, 0.5, 1.0, 2.0, 5.0],
             'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
             'max_iter': [200, 500, 1000],
-            'n_jobs': [-1],
+            #'n_jobs': [-1],
             'random_state': [42],
         },
     ),
@@ -39,7 +34,7 @@ models = [
             'n_neighbors': [3, 5, 7, 9, 11, 13, 15],
             'weights': ['distance'],
             'p': [1, 2],
-            'n_jobs': [-1],
+            #'n_jobs': [-1],
         },
     ),
     Model(
