@@ -1,0 +1,24 @@
+2023-07-11 13:45:26,623 - INFO - Ingesting data with config DataIngestionConfig(train_data_path=data\train, test_data_path=data\validation, predict_data_path=data\datasets\algarves\formatted_dataset), load_images=<function load_image at 0x0000029F726484C0>)
+2023-07-11 13:45:30,938 - INFO - Transforming data with DataTransformationConfig(channel_features=['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'quantile_0.25', 'quantile_0.75', 'iqr'], histogram_features=['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'R'], coocurrence_matrix_features=['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation'], positive_class=pools, negative_class=no_pools, use_augmentation=0, to_grayscale=<function to_grayscale at 0x0000029F726485E0>, to_histogram=<function to_histogram at 0x0000029F72749820>)
+2023-07-11 13:47:05,853 - INFO - Saving features in data\train_features.csv and data\test_features.csv
+2023-07-11 13:47:06,353 - INFO - Training models with features with config ModelTrainerConfig(k_features_grid=[40, 50, 60, 'all'], feature_selection_score_function=<function mutual_info_classif at 0x0000029F726481F0>, models=[Model(model_name=Logistic Regression, model_parameter_grid={'C': [0.1, 0.5, 1.0, 2.0, 5.0], 'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'], 'max_iter': [200, 500, 1000], 'n_jobs': [-1], 'random_state': [42]}, model=LogisticRegression()), Model(model_name=Random Forest, model_parameter_grid={'n_estimators': [100, 200, 500, 1000], 'criterion': ['gini', 'entropy', 'log_loss'], 'max_depth': [None, 10, 20, 50, 100]}, model=RandomForestClassifier()), Model(model_name=KNN, model_parameter_grid={'n_neighbors': [3, 5, 7, 9, 11, 13, 15], 'weights': ['distance'], 'p': [1, 2], 'n_jobs': [-1]}, model=KNeighborsClassifier()), Model(model_name=SVM, model_parameter_grid={'C': [0.1, 0.5, 1.0, 2.0, 5.0], 'kernel': ['linear', 'poly', 'rbf', 'sigmoid'], 'degree': [1, 2, 3, 4, 5], 'gamma': ['scale', 'auto'], 'max_iter': [200, 500, 1000], 'random_state': [42]}, model=SVC()), Model(model_name=Decision Tree, model_parameter_grid={'criterion': ['gini', 'entropy'], 'splitter': ['best'], 'max_depth': [None, 5, 10, 50, 100], 'random_state': [42]}, model=DecisionTreeClassifier())], target_column=label, score_criteria=f1_micro, cv=5)
+2023-07-11 16:36:25,524 - ERROR - exception calling callback for <Future at 0x29f7c363c70 state=finished raised TerminatedWorkerError>
+Traceback (most recent call last):
+  File "F:\AlexisF\python\lib\site-packages\joblib\externals\loky\_base.py", line 26, in _invoke_callbacks
+    callback(self)
+  File "F:\AlexisF\python\lib\site-packages\joblib\parallel.py", line 385, in __call__
+    self.parallel.dispatch_next()
+  File "F:\AlexisF\python\lib\site-packages\joblib\parallel.py", line 834, in dispatch_next
+    if not self.dispatch_one_batch(self._original_iterator):
+  File "F:\AlexisF\python\lib\site-packages\joblib\parallel.py", line 901, in dispatch_one_batch
+    self._dispatch(tasks)
+  File "F:\AlexisF\python\lib\site-packages\joblib\parallel.py", line 819, in _dispatch
+    job = self._backend.apply_async(batch, callback=cb)
+  File "F:\AlexisF\python\lib\site-packages\joblib\_parallel_backends.py", line 556, in apply_async
+    future = self._workers.submit(SafeFunction(func))
+  File "F:\AlexisF\python\lib\site-packages\joblib\externals\loky\reusable_executor.py", line 176, in submit
+    return super().submit(fn, *args, **kwargs)
+  File "F:\AlexisF\python\lib\site-packages\joblib\externals\loky\process_executor.py", line 1129, in submit
+    raise self._flags.broken
+joblib.externals.loky.process_executor.TerminatedWorkerError: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
