@@ -2,7 +2,7 @@ import sys
 import os
 import shutil
 
-def label_images_algarves(images_dir: str, labels_dir: str, new_dir: str):
+def label_images_algarves(images_dir: str, labels_dir: str):
     images_dirs = os.listdir(images_dir)
     labels_dirs = os.listdir(labels_dir)
     total_images_set = set(images_dirs)
@@ -40,7 +40,7 @@ def create_new_dataset(
         shutil.copyfile(os.path.join(images_dir, image), os.path.join(new_dir, negative_class, image_name))
 
 def main(images_dir: str, labels_dir: str, new_dir: str, positive_class: str, negative_class: str):
-    positive_images_set, negative_images_set = label_images_algarves(images_dir, labels_dir, new_dir)
+    positive_images_set, negative_images_set = label_images_algarves(images_dir, labels_dir)
     create_new_dataset(positive_images_set, negative_images_set, new_dir, positive_class, negative_class)
 
 if __name__ == '__main__':

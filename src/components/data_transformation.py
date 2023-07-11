@@ -15,6 +15,7 @@ class DataTransformationConfig:
         coocurrence_matrix_features: list,
         positive_class: str,
         negative_class: str,
+        use_augmentation: bool,
         to_grayscale: Callable,
         to_histogram: Callable,
     ):
@@ -23,11 +24,12 @@ class DataTransformationConfig:
         self.coocurrence_matrix_features = coocurrence_matrix_features
         self.positive_class = positive_class
         self.negative_class = negative_class
+        self.use_augmentation = use_augmentation
         self.to_grayscale = to_grayscale
         self.to_histogram = to_histogram
 
     def __repr__(self):
-        return f'DataTransformationConfig(channel_features={self.channel_features}, histogram_features={self.histogram_features}, coocurrence_matrix_features={self.coocurrence_matrix_features}, to_grayscale={self.to_grayscale}, to_histogram={self.to_histogram})'
+        return f'DataTransformationConfig(channel_features={self.channel_features}, histogram_features={self.histogram_features}, coocurrence_matrix_features={self.coocurrence_matrix_features}, positive_class={self.positive_class}, negative_class={self.negative_class}, use_augmentation={self.use_augmentation}, to_grayscale={self.to_grayscale}, to_histogram={self.to_histogram})'
     
     def __str__(self):
         return self.__repr__()
@@ -105,11 +107,11 @@ class DataTransformer:
         return split_features
 
     def transform(self, train_images: list, test_images: list, augmented_column: str, gabor_column: str) -> tuple[tuple[pd.DataFrame, pd.DataFrame], list[str]]:
-        train_features = self.transform_dataset(train_images, augmented_column, gabor_column)
+        train_features = self.transform_dataset(train_images, augmented_column, gabor_column, augment=self.config.use_augmentation)
         test_features = self.transform_dataset(test_images, augmented_column, gabor_column)
         return train_features, test_features
     
-    def transform_dataset(self, images: list, augmented_column: str, gabor_column: str):
+    def transform_dataset(self, images: list, augmented_column: str, gabor_column: str, augment: bool = False):
         channel_features_to_extract = self.config.channel_features
         histogram_features_to_extract = self.config.histogram_features
         coocurrence_matrix_features_to_extract = self.config.coocurrence_matrix_features
@@ -117,11 +119,12 @@ class DataTransformer:
         gabor_filters = gabor.create_gaborfilter()
         images_gabor = [(id, gabor.apply_filter(image, gabor_filters), label) for id, image, label in images]
 
-        features = self.__transform_split(images, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column)
-        features_gabor = self.__transform_split(images_gabor, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column)
+        features = self.__transform_split(images, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column, augment)
+        features_gabor = self.__transform_split(images_gabor, channel_features_to_extract, histogram_features_to_extract, coocurrence_matrix_features_to_extract, self.config.to_grayscale, self.config.to_histogram, self.config.positive_class, self.config.negative_class, augmented_column, augment)
 
         features.loc[:, gabor_column] = [0] * len(features)
         features_gabor.loc[:, gabor_column] = [1] * len(features_gabor)
 
         features = pd.concat([features, features_gabor], ignore_index=True)
+        features = features.sort_index(axis=1)
         return features

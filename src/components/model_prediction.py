@@ -26,7 +26,6 @@ class ModelPredictorConfig:
         self, 
         k_features: int,
         use_gabor: int,
-        use_augmentation: int,
         feature_selection_score_function: Callable,
         id_column: str,
         target_column: str, 
@@ -35,7 +34,6 @@ class ModelPredictorConfig:
     ):
         self.k_features = k_features
         self.use_gabor = use_gabor
-        self.use_augmentation = use_augmentation
         self.feature_selection_score_function = feature_selection_score_function
         self.id_column = id_column
         self.target_column = target_column
@@ -55,6 +53,7 @@ class ModelPredictor:
     def predict(self, model: Pipeline, dataset: pd.DataFrame, augmented_column: str, gabor_column: str) -> dict:
         non_feature_columns = [self.config.id_column, self.config.target_column, augmented_column, gabor_column]
         feature_columns = list(filter(lambda col: col not in non_feature_columns, dataset))
+        dataset = dataset[dataset[augmented_column] == 0]
 
         start_time = datetime.now()
         prediction = model.predict(dataset[feature_columns])
@@ -68,8 +67,7 @@ class ModelPredictor:
         total_samples = metrics.calculate_total_samples(TP, TN, FP, FN)
         total_time = end_time - start_time
 
-
-        saved_params = {'augmentation': self.config.use_augmentation, 'gabor': self.config.use_gabor, 'k': self.config.k_features}
+        saved_params = {'gabor': self.config.use_gabor, 'k': self.config.k_features}
         results = {
             'model_name': model.__class__.__name__,
             'params': saved_params,

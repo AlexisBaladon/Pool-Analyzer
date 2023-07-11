@@ -45,7 +45,7 @@ class PredictPipeline:
             dataset = self.data_ingestor.ingest_predict()
 
             logger.info(f'Transforming data with {self.data_transformer.config}')
-            features = self.data_transformer.transform_dataset(dataset, augmented_column, gabor_column)
+            features = self.data_transformer.transform_dataset(dataset, augmented_column, gabor_column, augment=False)
 
             logger.info(f'Saving features in {self.config.features_save_path}')
             file_handler.save_features(features, self.config.features_save_path)

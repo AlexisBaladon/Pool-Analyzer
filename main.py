@@ -33,7 +33,6 @@ def parse_args():
     # Predict pipeline arguments
     parser.add_argument('--k_features', type=int, default=50, help='Number of features to select')
     parser.add_argument('--use_gabor', type=int, default=1, help='Use gabor filter')
-    parser.add_argument('--use_augmentation', type=int, default=1, help='Use data augmentation')
     parser.add_argument('--predict_data_path', type=str, default=os.path.join('data', 'datasets', 'algarves', 'formatted_dataset'), help='Path to predict images')
     parser.add_argument('--predict_model_path', type=str, default=os.path.join('models', 'best_model.pkl'), help='Path to save model')
     parser.add_argument('--predict_features_save_path', type=str, default=os.path.join('data', 'predict_features.csv'), help='Path to save predict features')
@@ -63,6 +62,7 @@ def main(args):
         channel_features=channel_features,
         histogram_features=histogram_features,
         coocurrence_matrix_features=coocurrence_matrix_features,
+        use_augmentation=0 if args['train'] else 1 in use_augmentation_grid,
         positive_class=args['positive_class'],
         negative_class=args['negative_class'],
         to_grayscale=image_handler.to_grayscale,
@@ -106,7 +106,6 @@ def main(args):
         model_config = model_prediction.ModelPredictorConfig(
             k_features=args['k_features'],
             use_gabor=args['use_gabor'],
-            use_augmentation=args['use_augmentation'],
             feature_selection_score_function=mutual_info_classif,
             id_column=args['id_column'],
             target_column=args['target_column'],
