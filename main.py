@@ -62,7 +62,7 @@ def main(args):
         channel_features=channel_features,
         histogram_features=histogram_features,
         coocurrence_matrix_features=coocurrence_matrix_features,
-        use_augmentation=0 if args['train'] else 1 in use_augmentation_grid,
+        use_augmentation=1 if args['train'] else 1 in use_augmentation_grid,
         positive_class=args['positive_class'],
         negative_class=args['negative_class'],
         to_grayscale=image_handler.to_grayscale,
