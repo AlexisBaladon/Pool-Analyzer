@@ -57,9 +57,9 @@ models_small = [
         model_name='Decision Tree',
         model=DecisionTreeClassifier(),
         model_parameter_grid={
-            'criterion': ['gini', 'entropy'],
+            'criterion': ['gini'],
             'splitter': ['best'],
-            'max_depth': [None, 5, 10, 50, 100],
+            'max_depth': [None],
             'random_state': [42],
         },
     )

@@ -1,5 +1,6 @@
 import os
 import argparse 
+import random
 
 from sklearn.feature_selection import mutual_info_classif
 
@@ -18,6 +19,7 @@ def parse_args():
     parser.add_argument('--positive_class', type=str, default='pools', help='Positive class name')
     parser.add_argument('--negative_class', type=str, default='no_pools', help='Negative class name')
     parser.add_argument('--cache_features', default=False, action='store_true', help='Cache features')
+    parser.add_argument('--seed', type=int, default=0, help='Random seed')
 
     # Train pipeline arguments
     parser.add_argument('--train_images_path', type=str, default=os.path.join('data', 'train'), help='Path to train images')
@@ -41,6 +43,7 @@ def parse_args():
     return vars(parser.parse_args())
 
 def main(args):
+    random.seed(args['seed'])
     channel_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'quantile_0.25', 'quantile_0.75', 'iqr']
     histogram_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'R']
     coocurrence_matrix_features = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation']
