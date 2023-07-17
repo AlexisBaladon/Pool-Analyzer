@@ -35,7 +35,7 @@ def parse_args():
     # Predict pipeline arguments
     parser.add_argument('--k_features', type=int, default=50, help='Number of features to select')
     parser.add_argument('--use_gabor', type=int, default=1, help='Use gabor filter')
-    parser.add_argument('--predict_data_path', type=str, default=os.path.join('data', 'datasets', 'algarves', 'formatted_dataset'), help='Path to predict images')
+    parser.add_argument('--predict_data_path', type=str, default=os.path.join('data', 'datasets', 'algarves', 'fragmented_dataset'), help='Path to predict images')
     parser.add_argument('--predict_model_path', type=str, default=os.path.join('models', 'best_model.pkl'), help='Path to save model')
     parser.add_argument('--predict_features_save_path', type=str, default=os.path.join('data', 'predict_features.csv'), help='Path to save predict features')
     parser.add_argument('--predict_results_save_path', type=str, default=os.path.join('results', 'prediction_results.csv'), help='Path to save results')

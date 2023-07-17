@@ -1,0 +1,2 @@
+model_name,params,accuracy,f1,recall,precision,TP,TN,FP,FN,total_samples,total_time
+Pipeline,"{'gabor': 1, 'k': 50}",0.6730331969076853,0.3299161230195713,0.5028409090909091,0.24549237170596394,354,2606,1088,350,4398,0:00:00.117684
