@@ -1,0 +1,4 @@
+2023-07-11 12:54:39,829 - INFO - Loading features from data\predict_features.csv
+2023-07-11 12:54:39,846 - INFO - Loading model from models\best_model.pkl
+2023-07-11 12:54:39,847 - INFO - Predicting features with config ModelPredictorConfig(k_features=50, feature_selection_score_function=<function mutual_info_classif at 0x00000290FAAA81F0>, target_column=label, score_criteria=f1_micro, cv=5)
+2023-07-11 12:54:39,856 - INFO - Saving results in results\prediction_results.csv

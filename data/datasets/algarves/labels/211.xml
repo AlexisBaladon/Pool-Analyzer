@@ -1,0 +1,26 @@
+<annotation>
+	<folder>test_google</folder>
+	<filename>211.png</filename>
+	<path>C:\Users\Cecilia\Desktop\test_google\211.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>389</width>
+		<height>268</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>pool</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>153</xmin>
+			<ymin>247</ymin>
+			<xmax>239</xmax>
+			<ymax>267</ymax>
+		</bndbox>
+	</object>
+</annotation>

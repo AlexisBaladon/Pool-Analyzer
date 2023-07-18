@@ -1,0 +1,4 @@
+2023-07-09 07:58:10,961 - INFO - Loading features from data\train_features.csv and data\test_features.csv
+2023-07-09 07:58:11,018 - INFO - Training models with features with config ModelTrainerConfig(k_features_grid=[10, 20, 40, 'all'], feature_selection_score_function=<function mutual_info_classif at 0x000001E9918E61F0>, models=[Model(model_name=Logistic Regression, model_parameter_grid={'n_jobs': [-1], 'random_state': [42]}, model=LogisticRegression()), Model(model_name=Random Forest, model_parameter_grid={'max_depth': [None, 10, 20, 50, 100]}, model=RandomForestClassifier()), Model(model_name=KNN, model_parameter_grid={'p': [1, 2], 'n_jobs': [-1]}, model=KNeighborsClassifier()), Model(model_name=SVM, model_parameter_grid={'random_state': [42]}, model=SVC())], target_column=label, score_criteria=f1_micro, cv=5)
+2023-07-09 07:59:13,170 - INFO - Saving results in results\results.csv
+2023-07-09 07:59:13,172 - INFO - Saving best model in models\best_model.pkl

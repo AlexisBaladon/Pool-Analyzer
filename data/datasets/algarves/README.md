@@ -1,0 +1,3 @@
+https://www.kaggle.com/datasets/cici118/swimming-pool-detection-algarves-landscape
+
+Coelho C., Costa M.F.P., Ferrás L.L., Soares A.J. (2021) Object Detection with RetinaNet on Aerial Imagery: The Algarve Landscape. In: Gervasi O. et al. (eds) Computational Science and Its Applications – ICCSA 2021. ICCSA 2021. Lecture Notes in Computer Science, vol 12950. Springer, Cham. https://doi.org/10.1007/978-3-030-86960-1_35
