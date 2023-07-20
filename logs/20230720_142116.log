@@ -1,0 +1,1 @@
+2023-07-20 14:21:16,596 - INFO - Ingesting data with config DataIngestionConfig(train_data_path=data\train, test_data_path=data\validation, predict_data_path=data\datasets\algarves\fragmented_dataset), load_images=<function load_image at 0x000001D986538700>)

@@ -12,10 +12,8 @@ models = [
         model_name='Decision Tree',
         model=DecisionTreeClassifier(),
         model_parameter_grid={
-            'n_estimators': [100, 200, 500],
             'criterion': ['gini', 'entropy'],
-            'splitter': ['best'],
-            'max_depth': [None, 10, 20, 50],
+            'max_depth': [None, 10, 20, 30],
             'random_state': [SEED],
         },
     ),
@@ -25,7 +23,7 @@ models = [
         model_parameter_grid={
             'n_estimators': [100, 200, 500],
             'criterion': ['gini', 'entropy'],
-            'max_depth': [None, 10, 20, 50],
+            'max_depth': [None, 10, 20, 30],
             'random_state': [SEED],
         },
     ),
@@ -36,7 +34,7 @@ models = [
             'n_neighbors': [1, 3, 5, 9, 15],
             'weights': ['distance'],
             'p': [1, 2],
-            'random_state': [SEED],
+            #'random_state': [SEED], KNN does not have random state
             #'n_jobs': [-1],
         },
     ),
