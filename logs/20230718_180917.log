@@ -1,0 +1,4 @@
+2023-07-18 18:09:17,163 - INFO - Loading features from data\train_features.csv and data\test_features.csv
+2023-07-18 18:09:17,291 - INFO - Training models with features with config ModelTrainerConfig(k_features_grid=[40, 50, 60, 'all'], feature_selection_score_function=<function mutual_info_classif at 0x000001EB76847430>, models=[Model(model_name=Decision Tree, model_parameter_grid={'criterion': ['gini'], 'splitter': ['best'], 'max_depth': [None], 'random_state': [42]}, model=DecisionTreeClassifier())], target_column=label, score_criteria=f1_micro, cv=5)
+2023-07-18 18:09:37,868 - INFO - Saving results in results\results.csv
+2023-07-18 18:09:37,870 - INFO - Saving best model in models\best_model.pkl

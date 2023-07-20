@@ -6,6 +6,7 @@ from src.utils.metrics import metrics
 
 import pandas as pd
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import classification_report
 
 @dataclasses.dataclass
 class Model:
@@ -60,10 +61,14 @@ class ModelPredictor:
         end_time = datetime.now()
 
         TP, TN, FP, FN = metrics.calculate_results(prediction, dataset[self.config.target_column].tolist())
-        test_recall_score = metrics.calculate_recall(TP, FN)
-        test_precision_score = metrics.calculate_precision(TP, FP)
-        test_f1_score = metrics.calculate_f1(test_precision_score, test_recall_score)
-        test_accuracy_score = metrics.calculate_accuracy(TP, TN, FP, FN)
+        classif_report = classification_report(dataset[self.config.target_column].tolist(), prediction, output_dict=True)
+        test_macro_f1_score = classif_report['macro avg']['f1-score']
+        test_weighted_f1_score = classif_report['weighted avg']['f1-score']
+        test_macro_recall_score = classif_report['macro avg']['recall']
+        test_weighted_recall_score = classif_report['weighted avg']['recall']
+        test_macro_precision_score = classif_report['macro avg']['precision']
+        test_weighted_precision_score = classif_report['weighted avg']['precision']
+        test_accuracy_score = classif_report['accuracy']
         total_samples = metrics.calculate_total_samples(TP, TN, FP, FN)
         total_time = end_time - start_time
 
@@ -72,9 +77,12 @@ class ModelPredictor:
             'model_name': model.__class__.__name__,
             'params': saved_params,
             'accuracy': test_accuracy_score,
-            'f1': test_f1_score,
-            'recall': test_recall_score,
-            'precision': test_precision_score,
+            'f1_macro': test_macro_f1_score,
+            'f1_weighted': test_weighted_f1_score,
+            'recall_macro': test_macro_recall_score,
+            'recall_weighted': test_weighted_recall_score,
+            'precision_macro': test_macro_precision_score,
+            'precision_weighted': test_weighted_precision_score,
             'TP': TP,
             'TN': TN,
             'FP': FP,

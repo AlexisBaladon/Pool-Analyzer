@@ -1,6 +1,7 @@
 import os
 import argparse 
 import random
+import warnings
 
 from sklearn.feature_selection import mutual_info_classif
 
@@ -31,6 +32,8 @@ def parse_args():
     parser.add_argument('--score_criteria', type=str, default='f1_micro', help='Score criteria to select best model')
     parser.add_argument('--cv', type=int, default=5, help='Number of cross validation folds')
     parser.add_argument('--small_grid', default=False, action='store_true', help='Use small grid for training')
+    parser.add_argument('--not_drop_correlated_features', default=False, action='store_true', help='Does not drop correlated features when activated')
+    parser.add_argument('--correlated_features_path', type=str, default=os.path.join('data', 'features', 'correlated_features.txt'), help='Path to save correlated features')
 
     # Predict pipeline arguments
     parser.add_argument('--k_features', type=int, default=50, help='Number of features to select')
@@ -44,11 +47,16 @@ def parse_args():
 
 def main(args):
     random.seed(args['seed'])
+    warnings.filterwarnings('ignore')
+    
+    color_features = ['has_blue']
     channel_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'quantile_0.25', 'quantile_0.75', 'iqr']
     histogram_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'R']
     coocurrence_matrix_features = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation']
-    k_features_grid = [40, 50, 60, 'all']
-    use_gabor_grid = [0, 1]
+    with open(args['correlated_features_path'], 'r') as f:
+        correlated_features = [t.strip() for t in f.readlines()]
+    k_features_grid = [20, 30, 40, 'all']
+    use_gabor_grid = [0]
     use_augmentation_grid = [0, 1]
     
     # Data Ingestion
@@ -62,10 +70,13 @@ def main(args):
 
     # Data Transformation
     transformation_config = data_transformation.DataTransformationConfig(
+        color_features=color_features,
         channel_features=channel_features,
         histogram_features=histogram_features,
         coocurrence_matrix_features=coocurrence_matrix_features,
-        use_augmentation=1 if args['train'] else 1 in use_augmentation_grid,
+        correlated_features=correlated_features,
+        drop_correlated_features=not args['not_drop_correlated_features'],
+        use_augmentation=1 if args['train'] or 1 in use_augmentation_grid else 0,
         positive_class=args['positive_class'],
         negative_class=args['negative_class'],
         to_grayscale=image_handler.to_grayscale,
