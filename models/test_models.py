@@ -43,10 +43,10 @@ models = [
         model=SVC(),
         model_parameter_grid={
             'C': [0.1, 0.5, 1.0, 2.0],
-            'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
-            'degree': [1, 3, 5],
+            'kernel': ['poly', 'linear', 'rbf', 'sigmoid'],
+            'degree': [3, 1, 5],
             'gamma': ['scale', 'auto'],
-            'max_iter': [200, 500, 1000],
+            'max_iter': [3000, 5000, 10000],
             'random_state': [SEED],
         },
     ),

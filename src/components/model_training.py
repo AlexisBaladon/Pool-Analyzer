@@ -63,7 +63,7 @@ class ModelTrainer:
     def train(self, train_df: pd.DataFrame, test_df: pd.DataFrame, augmented_column: str, gabor_column: str) -> tuple:
         results = defaultdict(list)
         best_model = None
-        best_model_f1 = None
+        best_model_score = None
         non_feature_columns = [self.config.id_column, self.config.target_column, augmented_column, gabor_column]
         feature_columns = list(filter(lambda col: col not in non_feature_columns, train_df.columns))
 
@@ -93,6 +93,7 @@ class ModelTrainer:
                     model_grid = {'model__' + key: value for key, value in model.model_parameter_grid.items()}
                     select_k_grid = {'selector__k': self.config.k_features_grid.copy()}
                     param_grid = {**model_grid, **select_k_grid}
+
                     grid = GridSearchCV(
                         pipe,
                         param_grid=param_grid, 
@@ -121,9 +122,11 @@ class ModelTrainer:
 
                     total_samples = metrics.calculate_total_samples(TP, TN, FP, FN)
                     total_time = end_time - start_time
-                    if best_model is None or test_weighted_f1_score > best_model_f1:
+
+                    # Save only based on accuracy in the training set
+                    if best_model is None or grid.best_score_ > best_model_score:
                         best_model = grid.best_estimator_
-                        best_model_f1 = test_weighted_f1_score
+                        best_model_score = grid.best_score_
 
                     saved_params = {**grid.best_params_, **{'augmentation': use_augmentation, 'gabor': use_gabor}}
                     results['model_name'].append(model.model_name)

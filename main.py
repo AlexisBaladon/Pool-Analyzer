@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('--train_results_save_path', type=str, default=os.path.join('results', 'results.csv'), help='Path to save results')
     parser.add_argument('--train_features_save_path', type=str, default=os.path.join('data', 'train_features.csv'), help='Path to save train features')
     parser.add_argument('--test_features_save_path', type=str, default=os.path.join('data', 'test_features.csv'), help='Path to save test features')
-    parser.add_argument('--score_criteria', type=str, default='f1_micro', help='Score criteria to select best model')
+    parser.add_argument('--score_criteria', type=str, default='accuracy', help='Score criteria to select best model')
     parser.add_argument('--cv', type=int, default=5, help='Number of cross validation folds')
     parser.add_argument('--small_grid', default=False, action='store_true', help='Use small grid for training')
     parser.add_argument('--not_drop_correlated_features', default=False, action='store_true', help='Does not drop correlated features when activated')
@@ -37,7 +37,7 @@ def parse_args():
 
     # Predict pipeline arguments
     parser.add_argument('--k_features', type=int, default=50, help='Number of features to select')
-    parser.add_argument('--use_gabor', type=int, default=1, help='Use gabor filter')
+    parser.add_argument('--use_gabor', type=int, default=0, help='Use gabor filter')
     parser.add_argument('--predict_data_path', type=str, default=os.path.join('data', 'datasets', 'algarves', 'fragmented_dataset'), help='Path to predict images')
     parser.add_argument('--predict_model_path', type=str, default=os.path.join('models', 'best_model.pkl'), help='Path to save model')
     parser.add_argument('--predict_features_save_path', type=str, default=os.path.join('data', 'predict_features.csv'), help='Path to save predict features')

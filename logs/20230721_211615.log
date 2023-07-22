@@ -1,0 +1,4 @@
+2023-07-21 21:16:15,884 - INFO - Loading features from data\train_features.csv and data\test_features.csv
+2023-07-21 21:16:15,965 - INFO - Training models with features with config ModelTrainerConfig(k_features_grid=[20, 30, 40, 'all'], feature_selection_score_function=<function mutual_info_classif at 0x000001F582188430>, models=[Model(model_name=SVM, model_parameter_grid={'C': [1], 'kernel': ['poly'], 'degree': [3], 'gamma': ['scale'], 'max_iter': [2000, 5000, 10000], 'random_state': [42]}, model=SVC())], target_column=label, score_criteria=accuracy, cv=5)
+2023-07-21 21:16:44,368 - INFO - Saving results in results\results.csv
+2023-07-21 21:16:44,370 - INFO - Saving best model in models\best_model.pkl
