@@ -111,6 +111,14 @@ class DataTransformer:
         test_features = self.transform_dataset(test_images, augmented_column, gabor_column)
         return train_features, test_features
     
+    def transform_single_image(self, image) -> pd.DataFrame:
+        images = [(0, image, 'test')]
+        augmented_column = 'augmented'
+        gabor_column = 'gabor'
+        features = self.transform_dataset(images, augmented_column, gabor_column)
+        features = features[features[gabor_column] == 0].drop(columns=[gabor_column, augmented_column, 'image_id', 'label'])
+        return features
+    
     def transform_dataset(self, images: list, augmented_column: str, gabor_column: str, augment: bool = False):
         channel_features_to_extract = self.config.channel_features
         histogram_features_to_extract = self.config.histogram_features
