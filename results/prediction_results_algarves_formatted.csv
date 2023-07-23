@@ -1,0 +1,2 @@
+model_name,params,accuracy,f1_macro,f1_weighted,recall_macro,recall_weighted,precision_macro,precision_weighted,TP,TN,FP,FN,total_samples,total_time
+Pipeline,"{'gabor': 0, 'k': 50}",0.3892733564013841,0.3071450644010011,0.26174751605908086,0.4718868018286623,0.3892733564013841,0.3809260720862931,0.3791185892621592,13,212,22,331,578,0:00:00.017951
