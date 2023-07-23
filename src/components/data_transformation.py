@@ -1,9 +1,9 @@
 import dataclasses
 from typing import Callable
 
-from src.utils.feature_extraction import \
+from feature_extraction import \
     color_features, channel_features, histogram_features, coocurrence_matrix, gabor
-from src.utils.image_processing import augmentation
+from image_processing import augmentation
 
 import pandas as pd
 
