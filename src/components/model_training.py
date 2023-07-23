@@ -71,6 +71,51 @@ class ModelTrainer:
             for use_gabor in tqdm(self.config.use_gabor_grid, desc='Gabor'):
                 current_train_df = train_df.copy()
                 current_test_df = test_df.copy()
+                cv = self.config.cv
+
+                # Filter out rows that don't match the current augmentation/gabor
+                current_train_df = current_train_df[current_train_df[gabor_column] == use_gabor]
+                current_test_df = current_test_df[current_test_df[gabor_column] == use_gabor]
+                current_train_df = current_train_df.drop(columns=[gabor_column])
+                current_test_df = current_test_df.drop(columns=[gabor_column])
+
+                if use_augmentation == 1:
+                    # Shuffle the data as done in GridSearchCV
+                    shuffled_train_df = current_train_df.sample(frac=1, random_state=0)
+                    train_image_indices = shuffled_train_df[self.config.id_column].tolist()
+                    train_df_indices = shuffled_train_df.index.tolist()
+                    n_folds = self.config.cv
+                    fold_indices = [(train_image_indices[i::n_folds], train_df_indices[i::n_folds]) for i in range(n_folds)]
+
+                    # Gridsearch cv accepts a list of (train_index, test_index) tuples
+                    cv_folds = []
+                    for i in range(n_folds):
+                        train_indices = fold_indices[i]
+                        test_indices = []
+                        for j in range(n_folds):
+                            if i != j:
+                                test_indices.append(fold_indices[j])
+                        test_image_indices, test_df_indices = [idx[0] for idx in test_indices], [idx[1] for idx in test_indices]
+                        test_image_indices, test_df_indices = [item for sublist in test_image_indices for item in sublist], [item for sublist in test_df_indices for item in sublist]
+                        test_indices = (test_image_indices, test_df_indices)
+                        cv_folds.append((train_indices, test_indices))
+
+                    # Augmented data should be in the same fold as the original data
+                    new_cv_folds = []
+                    for train_indices, test_indices in cv_folds:
+                        # Find df indices of repeated images
+                        current_train_image_indices, current_train_df_indices = train_indices
+                        current_test_image_indices, current_test_df_indices = test_indices
+                        current_repeated_test_image_indices = [index for index in current_test_image_indices if index in current_train_image_indices]
+                        current_repeated_test_df_indices = [df_index for image_index, df_index in zip(current_test_image_indices, test_indices[1]) if image_index in current_repeated_test_image_indices]
+                        
+                        # Add image indices of test to train
+                        new_current_train_indices = current_train_df_indices + current_repeated_test_df_indices
+                        new_current_test_indices = [index for index in current_test_df_indices if index not in current_repeated_test_df_indices]
+                        new_cv_folds.append((new_current_train_indices, new_current_test_indices))
+                                    
+                    cv = new_cv_folds
+                    current_train_df = shuffled_train_df
 
                 if use_augmentation == 0:
                     current_train_df = current_train_df[current_train_df[augmented_column] == use_augmentation]
@@ -78,10 +123,6 @@ class ModelTrainer:
                 current_train_df = current_train_df.drop(columns=[augmented_column])
                 current_test_df = current_test_df.drop(columns=[augmented_column])
                 
-                current_train_df = current_train_df[current_train_df[gabor_column] == use_gabor]
-                current_test_df = current_test_df[current_test_df[gabor_column] == use_gabor]
-                current_train_df = current_train_df.drop(columns=[gabor_column])
-                current_test_df = current_test_df.drop(columns=[gabor_column])
 
                 for model in tqdm(self.config.models, desc='Models'):
                     pipe = Pipeline([
@@ -94,17 +135,20 @@ class ModelTrainer:
                     select_k_grid = {'selector__k': self.config.k_features_grid.copy()}
                     param_grid = {**model_grid, **select_k_grid}
 
+
                     grid = GridSearchCV(
                         pipe,
                         param_grid=param_grid, 
-                        cv=self.config.cv, 
+                        cv=cv, 
                         scoring=self.config.score_criteria,
                         verbose=0, 
                         n_jobs=-1,
                     )
 
                     start_time = datetime.now()
-                    grid.fit(current_train_df[feature_columns], current_train_df[self.config.target_column])
+                    X = current_train_df[feature_columns]
+                    y = current_train_df[self.config.target_column]
+                    grid.fit(X, y)
                     end_time = datetime.now()
 
                     prediction = grid.predict(current_test_df[feature_columns])
