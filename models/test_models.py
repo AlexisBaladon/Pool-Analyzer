@@ -54,13 +54,15 @@ models = [
 
 models_small = [
     Model(
-        model_name='Decision Tree',
-        model=DecisionTreeClassifier(),
+        model_name='SVM',
+        model=SVC(),
         model_parameter_grid={
-            'criterion': ['gini'],
-            'splitter': ['best'],
-            'max_depth': [None],
+            'C': [2.0],
+            'kernel': ['poly'],
+            'degree': [5],
+            'gamma': ['scale'],
+            #'max_iter': [10000],
             'random_state': [SEED],
         },
-    )
+    ),
 ]

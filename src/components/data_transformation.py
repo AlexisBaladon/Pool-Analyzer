@@ -1,9 +1,14 @@
 import dataclasses
 from typing import Callable
 
-from feature_extraction import \
-    color_features, channel_features, histogram_features, coocurrence_matrix, gabor
-from image_processing import augmentation
+try:
+    from feature_extraction import \
+        color_features, channel_features, histogram_features, coocurrence_matrix, gabor
+    from image_processing import augmentation
+except ModuleNotFoundError:
+    from src.utils.feature_extraction import \
+        color_features, channel_features, histogram_features, coocurrence_matrix, gabor
+    from src.utils.image_processing import augmentation
 
 import pandas as pd
 
@@ -134,8 +139,7 @@ class DataTransformer:
     
     def transform_single_image(self, image) -> pd.DataFrame:
         images = [(0, image, 'test')]
-        augmented_column = 'augmented'
-        gabor_column = 'gabor'
+        augmented_column, gabor_column = 'augmented', 'gabor'
         features = self.transform_dataset(images, augmented_column, gabor_column)
         features = features[features[gabor_column] == 0].drop(columns=[gabor_column, augmented_column, 'image_id', 'label'])
         return features
