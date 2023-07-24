@@ -1,7 +1,7 @@
 from typing import Callable
 import dataclasses
 from datetime import datetime
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 from src.utils.metrics import metrics
 
@@ -60,6 +60,47 @@ class ModelTrainer:
     def __init__(self, config: ModelTrainerConfig):
         self.config = config
 
+    def __create_augmentation_custom_cv(self, train_df: pd.DataFrame, augmented_column: str):
+        # Shuffle the data as done in GridSearchCV
+        train_image_indices = train_df[self.config.id_column].tolist()
+        train_df_indices = train_df.index.tolist()
+        n_folds = self.config.cv
+        fold_indices = [(train_image_indices[i::n_folds], train_df_indices[i::n_folds]) for i in range(n_folds)]
+
+        # Gridsearch cv accepts a list of (train_index, test_index) tuples
+        cv_folds = []
+        for i in range(n_folds):
+            train_indices = fold_indices[i]
+            test_indices = []
+            for j in range(n_folds):
+                if i != j:
+                    test_indices.append(fold_indices[j])
+            test_image_indices, test_df_indices = [idx[0] for idx in test_indices], [idx[1] for idx in test_indices]
+            test_image_indices, test_df_indices = [item for sublist in test_image_indices for item in sublist], [item for sublist in test_df_indices for item in sublist]
+            test_indices = (test_image_indices, test_df_indices)
+            cv_folds.append((train_indices, test_indices))
+
+        # Augmented data should be in the same fold as the original data
+        new_cv_folds = []
+        for train_indices, test_indices in cv_folds:
+            current_train_image_indices, current_train_df_indices = train_indices
+            current_test_image_indices, current_test_df_indices = test_indices
+
+            # Data leakage scenario 1: Filter augmented images and their source shared between train and validation set
+            current_repeated_test_image_indices = [index for index in current_test_image_indices if index in current_train_image_indices]
+            # Data leakage scenario 2: There are augmented images and their source in a validation set
+            test_indices_counter = Counter(current_test_image_indices)
+            current_repeated_test_image_indices += [image_index for image_index, count in test_indices_counter.items() if count > 1]
+
+            # Filter out augmented images from the validation set
+            current_repeated_test_df_indices = [df_index for image_index, df_index in zip(current_test_image_indices, test_indices[1]) if image_index in current_repeated_test_image_indices]
+            
+            # Add image indices of test to train
+            new_current_train_indices = current_train_df_indices + current_repeated_test_df_indices
+            new_current_test_indices = [index for index in current_test_df_indices if index not in current_repeated_test_df_indices]
+            new_cv_folds.append((new_current_train_indices, new_current_test_indices))
+        return new_cv_folds, train_df
+    
     def train(self, train_df: pd.DataFrame, test_df: pd.DataFrame, augmented_column: str, gabor_column: str) -> tuple:
         results = defaultdict(list)
         best_model = None
@@ -79,50 +120,15 @@ class ModelTrainer:
                 current_train_df = current_train_df.drop(columns=[gabor_column])
                 current_test_df = current_test_df.drop(columns=[gabor_column])
 
+                # Create custom cv for augmentation and drop the augmented column
                 if use_augmentation == 1:
-                    # Shuffle the data as done in GridSearchCV
                     shuffled_train_df = current_train_df.sample(frac=1, random_state=0)
-                    train_image_indices = shuffled_train_df[self.config.id_column].tolist()
-                    train_df_indices = shuffled_train_df.index.tolist()
-                    n_folds = self.config.cv
-                    fold_indices = [(train_image_indices[i::n_folds], train_df_indices[i::n_folds]) for i in range(n_folds)]
-
-                    # Gridsearch cv accepts a list of (train_index, test_index) tuples
-                    cv_folds = []
-                    for i in range(n_folds):
-                        train_indices = fold_indices[i]
-                        test_indices = []
-                        for j in range(n_folds):
-                            if i != j:
-                                test_indices.append(fold_indices[j])
-                        test_image_indices, test_df_indices = [idx[0] for idx in test_indices], [idx[1] for idx in test_indices]
-                        test_image_indices, test_df_indices = [item for sublist in test_image_indices for item in sublist], [item for sublist in test_df_indices for item in sublist]
-                        test_indices = (test_image_indices, test_df_indices)
-                        cv_folds.append((train_indices, test_indices))
-
-                    # Augmented data should be in the same fold as the original data
-                    new_cv_folds = []
-                    for train_indices, test_indices in cv_folds:
-                        # Find df indices of repeated images
-                        current_train_image_indices, current_train_df_indices = train_indices
-                        current_test_image_indices, current_test_df_indices = test_indices
-                        current_repeated_test_image_indices = [index for index in current_test_image_indices if index in current_train_image_indices]
-                        current_repeated_test_df_indices = [df_index for image_index, df_index in zip(current_test_image_indices, test_indices[1]) if image_index in current_repeated_test_image_indices]
-                        
-                        # Add image indices of test to train
-                        new_current_train_indices = current_train_df_indices + current_repeated_test_df_indices
-                        new_current_test_indices = [index for index in current_test_df_indices if index not in current_repeated_test_df_indices]
-                        new_cv_folds.append((new_current_train_indices, new_current_test_indices))
-                                    
-                    cv = new_cv_folds
-                    current_train_df = shuffled_train_df
-
-                if use_augmentation == 0:
+                    cv, current_train_df = self.__create_augmentation_custom_cv(shuffled_train_df, augmented_column)
+                else:
                     current_train_df = current_train_df[current_train_df[augmented_column] == use_augmentation]
                     current_test_df = current_test_df[current_test_df[augmented_column] == use_augmentation]
                 current_train_df = current_train_df.drop(columns=[augmented_column])
                 current_test_df = current_test_df.drop(columns=[augmented_column])
-                
 
                 for model in tqdm(self.config.models, desc='Models'):
                     pipe = Pipeline([
@@ -134,8 +140,7 @@ class ModelTrainer:
                     model_grid = {'model__' + key: value for key, value in model.model_parameter_grid.items()}
                     select_k_grid = {'selector__k': self.config.k_features_grid.copy()}
                     param_grid = {**model_grid, **select_k_grid}
-
-
+                    
                     grid = GridSearchCV(
                         pipe,
                         param_grid=param_grid, 

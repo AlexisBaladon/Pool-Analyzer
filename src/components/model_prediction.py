@@ -72,7 +72,7 @@ class ModelPredictor:
         total_samples = metrics.calculate_total_samples(TP, TN, FP, FN)
         total_time = end_time - start_time
 
-        saved_params = {'gabor': self.config.use_gabor, 'k': self.config.k_features}
+        saved_params = {'gabor': self.config.use_gabor}
         results = {
             'model_name': model.__class__.__name__,
             'params': saved_params,
