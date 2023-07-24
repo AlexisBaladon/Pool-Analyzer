@@ -148,6 +148,7 @@ def main(args):
         print('No action selected')
 
 # python main.py --train --small_grid --cache_features
+# python main.py --train --small_grid --train_images_path data/datasets/mix/train
 if __name__ == '__main__':
     args = parse_args()
     main(args)

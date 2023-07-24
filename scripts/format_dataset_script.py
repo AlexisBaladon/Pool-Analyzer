@@ -44,8 +44,8 @@ def main(images_dir: str, labels_dir: str, new_dir: str, positive_class: str, ne
     create_new_dataset(positive_images_set, negative_images_set, new_dir, positive_class, negative_class)
 
 if __name__ == '__main__':
-    images_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join('data', 'datasets', 'algarves', 'images')
-    labels_dir = sys.argv[2] if len(sys.argv) > 2 else os.path.join('data', 'datasets', 'algarves', 'labels')
+    images_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join('data', 'datasets', 'algarves', 'original_dataset', 'images')
+    labels_dir = sys.argv[2] if len(sys.argv) > 2 else os.path.join('data', 'datasets', 'algarves', 'original_dataset', 'labels')
     new_dir = sys.argv[3] if len(sys.argv) > 3 else os.path.join('data', 'datasets', 'algarves', 'formatted_dataset')
     positive_class = sys.argv[4] if len(sys.argv) > 4 else 'pools'
     negative_class = sys.argv[5] if len(sys.argv) > 5 else 'no_' + positive_class
