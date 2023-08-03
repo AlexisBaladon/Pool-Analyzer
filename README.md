@@ -8,7 +8,7 @@
 
 La página web fue creada con Angular y se encuentra hosteada en:
 
-https://alexisbaladon.pages.fing.edu.uy/timag-presentation/introduccion
+https://alexisbaladon.pages.fing.edu.uy/timag-presentation
 
 Todas las rutas utilizadas son relativas, pero en caso de cambiar algun directorio del proyecto
 podrían ser de interés los siguientes archivos:
