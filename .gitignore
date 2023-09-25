@@ -1,2 +1,4 @@
 scripts/delete_mistake.py
 *.zip
+__pycache__
+.vscode
