@@ -12,7 +12,11 @@ feature_extractors = {
 }
 
 def create_color_features(labeled_images, color_features_to_extract):
-    pixels_df = {'image_id': [], 'feature_name': [], 'feature_value': [], 'label': []}
+    pixels_df = {'image_id': [], 
+                 'feature_name': [], 
+                 'feature_value': [], 
+                 'label': []}
+    
     for image_id, image, label in labeled_images:
         for feature_name in color_features_to_extract:
             feature_value = feature_extractors[feature_name](image)
@@ -20,4 +24,5 @@ def create_color_features(labeled_images, color_features_to_extract):
             pixels_df['feature_value'].append(feature_value)
             pixels_df['label'].append(label)
             pixels_df['image_id'].append(image_id)
+            
     return pixels_df

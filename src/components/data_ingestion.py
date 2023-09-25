@@ -37,10 +37,13 @@ class DataIngestor:
         return images
 
     def ingest_train(self) -> tuple[list]:
-        train_images = self.ingest_dataset(self.config.train_data_path, self.config.load_images)
-        test_images = self.ingest_dataset(self.config.test_data_path, self.config.load_images)
+        train_images = self.ingest_dataset(self.config.train_data_path, 
+                                           self.config.load_images)
+        test_images = self.ingest_dataset(self.config.test_data_path, 
+                                          self.config.load_images)
         return train_images, test_images
     
     def ingest_predict(self) -> list:
-        predict_images = self.ingest_dataset(self.config.predict_data_path, self.config.load_images)
+        predict_images = self.ingest_dataset(self.config.predict_data_path, 
+                                             self.config.load_images)
         return predict_images

@@ -66,10 +66,13 @@ channel_feature_functions = {
     'iqr': calculate_iqr,
 }
 
-def create_channel_features(images: list, features_to_extract: list, to_grayscale: Callable = None):
+def create_channel_features(images: list, 
+                            features_to_extract: list, 
+                            to_grayscale: Callable = None):
     channels = ['red', 'green', 'blue'] + (['grayscale'] if to_grayscale is not None else [])
     pixels_df = {'image_id': [], 'feature_name': [], 'feature_value': [], 'label': []}
-    selected_feature_functions = {feature_name: channel_feature_functions[feature_name] for feature_name in features_to_extract}
+    selected_feature_functions = {feature_name: channel_feature_functions[feature_name] 
+                                  for feature_name in features_to_extract}
 
     for id, image, label in images:
         for feature_name, feature_function in selected_feature_functions.items():

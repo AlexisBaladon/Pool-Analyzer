@@ -10,7 +10,10 @@ from sklearn.metrics import classification_report
 
 @dataclasses.dataclass
 class Model:
-    def __init__(self, model_name: str, model_parameter_grid: dict[list], model):
+    def __init__(self, 
+                 model_name: str, 
+                 model_parameter_grid: dict[list], 
+                 model):
         self.model_name = model_name
         self.model_parameter_grid = model_parameter_grid
         self.model = model
@@ -51,7 +54,11 @@ class ModelPredictor:
     def __init__(self, config: ModelPredictorConfig):
         self.config = config
 
-    def predict(self, model: Pipeline, dataset: pd.DataFrame, augmented_column: str, gabor_column: str) -> dict:
+    def predict(self, 
+                model: Pipeline, 
+                dataset: pd.DataFrame, 
+                augmented_column: str, 
+                gabor_column: str) -> dict:
         non_feature_columns = [self.config.id_column, self.config.target_column, augmented_column, gabor_column]
         feature_columns = list(filter(lambda col: col not in non_feature_columns, dataset))
         dataset = dataset[dataset[augmented_column] == 0]

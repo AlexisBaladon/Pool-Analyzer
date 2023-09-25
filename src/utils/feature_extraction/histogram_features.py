@@ -68,17 +68,26 @@ histogram_feature_functions = {
     'R': calculate_R_histogram, 
 }
 
-def create_histogram_features(images: list[tuple], features_to_extract: list, to_grayscale: Callable, to_histogram: Callable, bins=256):
-    pixels_df = {'image_id': [], 'feature_name': [], 'feature_value': [], 'label': []}
-    selected_features = {feature_name: histogram_feature_functions[feature_name] for feature_name in features_to_extract}
+def create_histogram_features(images: list[tuple], 
+                              features_to_extract: list, 
+                              to_grayscale: Callable, 
+                              to_histogram: Callable, 
+                              bins=256):
+    pixels_df = {'image_id': [], 
+                 'feature_name': [], 
+                 'feature_value': [], 
+                 'label': []}
+    selected_features = {feature_name: histogram_feature_functions[feature_name] 
+                         for feature_name in features_to_extract}
 
     for id, image, label in images:
         grayscale_image = to_grayscale(image)
         image_histogram = to_histogram(grayscale_image, bins=bins)
 
         for feature_name, feature_function in selected_features.items():
+            feature_value = feature_function(image_histogram, bins)
             pixels_df['image_id'].append(id)
-            pixels_df['feature_value'].append(feature_function(image_histogram, bins))
+            pixels_df['feature_value'].append(feature_value)
             pixels_df['feature_name'].append(feature_name + '_histogram')
             pixels_df['label'].append(label)
 

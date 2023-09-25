@@ -1,20 +1,7 @@
-def calculate_f1(precision: float, recall: float) -> float:
-    if precision + recall == 0:
-        return 0
-    f1_score = 2 * precision * recall / (precision + recall)
-    return f1_score
+from sklearn.metrics import classification_report as classification_report_
 
-def calculate_recall(TP: int, FN: int) -> float:
-    if TP + FN == 0:
-        return 0
-    recall_score = TP / (TP + FN)
-    return recall_score
-
-def calculate_precision(TP: int, FP: int) -> float:
-    if TP + FP == 0:
-        return 0
-    precision_score = TP / (TP + FP)
-    return precision_score
+def classification_report(*args, **kwargs):
+    return classification_report_(*args, **kwargs)
 
 def calculate_accuracy(TP: int, TN: int, FP: int, FN: int) -> float:
     accuracy_score = (TP + TN) / (TP + TN + FP + FN)

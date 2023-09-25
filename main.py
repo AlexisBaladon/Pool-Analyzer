@@ -50,11 +50,17 @@ def main(args):
     warnings.filterwarnings('ignore')
     
     color_features = ['has_blue']
-    channel_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'quantile_0.25', 'quantile_0.75', 'iqr']
-    histogram_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 'skewness', 'kurtosis', 'entropy', 'R']
-    coocurrence_matrix_features = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation']
+    channel_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 
+                        'skewness', 'kurtosis', 'entropy', 
+                        'quantile_0.25', 'quantile_0.75', 'iqr']
+    histogram_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 
+                          'range', 'skewness', 'kurtosis', 'entropy', 'R']
+    coocurrence_matrix_features = ['contrast', 'dissimilarity', 
+                                   'homogeneity', 'energy', 'correlation']
+    
     with open(args['correlated_features_path'], 'r') as f:
         correlated_features = [t.strip() for t in f.readlines()]
+
     k_features_grid = [20, 30, 40, 'all']
     use_gabor_grid = [0]
     use_augmentation_grid = [0, 1]
@@ -64,8 +70,7 @@ def main(args):
         train_data_path=args['train_images_path'],
         test_data_path=args['test_images_path'],
         predict_data_path=args['predict_data_path'],
-        load_images=image_handler.load_image,
-    )
+        load_images=image_handler.load_image)
     data_ingestor = data_ingestion.DataIngestor(ingestion_config)
 
     # Data Transformation
@@ -80,8 +85,7 @@ def main(args):
         positive_class=args['positive_class'],
         negative_class=args['negative_class'],
         to_grayscale=image_handler.to_grayscale,
-        to_histogram=image_handler.to_histogram,
-    )
+        to_histogram=image_handler.to_histogram)
     data_transformer = data_transformation.DataTransformer(transformation_config)
 
     # Model Training/Prediction
@@ -97,8 +101,7 @@ def main(args):
             id_column=args['id_column'],
             target_column=args['target_column'],
             score_criteria=args['score_criteria'],
-            cv=args['cv'],
-        )
+            cv=args['cv'])
         model_trainer = model_training.ModelTrainer(model_config)
 
         pipeline_config = train_pipeline.TrainPipelineConfig(
@@ -107,14 +110,14 @@ def main(args):
             train_features_save_path=args['train_features_save_path'],
             test_features_save_path=args['test_features_save_path'],
             cache_features=args['cache_features'],
-            logger=logging,
-        )
+            logger=logging)
+        
         pipeline = train_pipeline.TrainPipeline(
             config=pipeline_config,
             data_ingestor=data_ingestor,
             data_transformer=data_transformer,
-            model_trainer=model_trainer,
-        )
+            model_trainer=model_trainer)
+        
         pipeline.train()
     elif args['predict']:
         model_config = model_prediction.ModelPredictorConfig(
@@ -124,8 +127,7 @@ def main(args):
             id_column=args['id_column'],
             target_column=args['target_column'],
             score_criteria=args['score_criteria'],
-            cv=args['cv'],
-        )
+            cv=args['cv'])
         model_predictor = model_prediction.ModelPredictor(model_config)
 
         pipeline_config = predict_pipeline.PredictPipelineConfig(
@@ -133,15 +135,13 @@ def main(args):
             results_save_path=args['predict_results_save_path'],
             features_save_path=args['predict_features_save_path'],
             cache_features=args['cache_features'],
-            logger=logging,
-        )
+            logger=logging)
 
         pipeline = predict_pipeline.PredictPipeline(
             config=pipeline_config,
             data_ingestor=data_ingestor,
             data_transformer=data_transformer,
-            model_predictor=model_predictor,
-        )
+            model_predictor=model_predictor)
 
         pipeline.predict()
     else:
