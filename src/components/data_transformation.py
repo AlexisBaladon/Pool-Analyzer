@@ -14,19 +14,17 @@ import pandas as pd
 
 @dataclasses.dataclass
 class DataTransformationConfig:
-    def __init__(self, 
-        color_features: list,
-        channel_features: list, 
-        histogram_features: list, 
-        coocurrence_matrix_features: list,
-        correlated_features: list,
-        drop_correlated_features: bool,
-        positive_class: str,
-        negative_class: str,
-        use_augmentation: bool,
-        to_grayscale: Callable,
-        to_histogram: Callable,
-    ):
+    def __init__(self, color_features: list,
+                 channel_features: list, 
+                 histogram_features: list, 
+                 coocurrence_matrix_features: list,
+                 correlated_features: list,
+                 drop_correlated_features: bool,
+                 positive_class: str,
+                 negative_class: str,
+                 use_augmentation: bool,
+                 to_grayscale: Callable,
+                 to_histogram: Callable):
         self.color_features = color_features
         self.channel_features = channel_features
         self.histogram_features = histogram_features
@@ -67,30 +65,26 @@ class DataTransformer:
 
         return features_df
 
-    def __transform_labels(self, 
-                           feature_df: pd.DataFrame, 
-                           positive_class: str, 
-                           negative_class: str):
+    def __transform_labels(self, feature_df: pd.DataFrame, 
+                           positive_class: str, negative_class: str):
         label_to_int = lambda label: 1 if label == positive_class \
                                      else 0 if label == negative_class \
                                      else None
         feature_df.loc[:, 'label'] = feature_df['label'].apply(label_to_int)
         return feature_df
 
-    def __transform_split(
-        self, 
-        labeled_images: list, 
-        color_features_to_extract: list,
-        channel_features_to_extract: list,
-        histogram_features_to_extract: list,
-        coocurrence_matrix_features_to_extract: list,
-        to_grayscale: Callable, 
-        to_histogram: Callable,
-        positive_class: str,
-        negative_class: str,
-        augmented_column: str,
-        augment: bool = True,
-    ) -> pd.DataFrame:
+    def __transform_split(self, 
+                          labeled_images: list, 
+                          color_features_to_extract: list,
+                          channel_features_to_extract: list,
+                          histogram_features_to_extract: list,
+                          coocurrence_matrix_features_to_extract: list,
+                          to_grayscale: Callable, 
+                          to_histogram: Callable,
+                          positive_class: str,
+                          negative_class: str,
+                          augmented_column: str,
+                          augment=True) -> pd.DataFrame:
 
         split_color_features = \
             color_features.create_color_features(labeled_images,
@@ -214,7 +208,8 @@ class DataTransformer:
         correlated_features = self.config.correlated_features
 
         gabor_filters = gabor.create_gaborfilter()
-        images_gabor = [(id, gabor.apply_filter(image, gabor_filters), label) for id, image, label in images]
+        images_gabor = [(id, gabor.apply_filter(image, gabor_filters), label) 
+                        for id, image, label in images]
 
         features = self.__transform_split(images, 
                                           color_features_to_extract, 

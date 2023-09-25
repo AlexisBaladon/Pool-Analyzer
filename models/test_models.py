@@ -35,7 +35,6 @@ models = [
             'weights': ['distance'],
             'p': [1, 2],
             #'random_state': [SEED], KNN does not have random state
-            #'n_jobs': [-1],
         },
     ),
     Model(

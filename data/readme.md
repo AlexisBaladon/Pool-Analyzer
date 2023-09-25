@@ -1,1 +1,0 @@
-Dataset taken from: https://github.com/yacine-benbaccar/Pool-Detection/tree/master

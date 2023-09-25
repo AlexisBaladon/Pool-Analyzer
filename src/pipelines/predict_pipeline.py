@@ -6,7 +6,10 @@ from ..components import data_ingestion, data_transformation, model_prediction
 
 @dataclasses.dataclass
 class PredictPipelineConfig:
-    def __init__(self, model_path: str, results_save_path: str, features_save_path: str, cache_features: bool, logger):
+    def __init__(self, model_path: str, 
+                 results_save_path: str, 
+                 features_save_path: str, 
+                 cache_features: bool, logger):
         self.model_path = model_path
         self.results_save_path = results_save_path
         self.features_save_path = features_save_path
@@ -20,13 +23,10 @@ class PredictPipelineConfig:
         return self.__repr__()
 
 class PredictPipeline:
-    def __init__(
-        self, 
-        config: PredictPipelineConfig, 
-        data_ingestor: data_ingestion.DataIngestor, 
-        data_transformer: data_transformation.DataTransformer, 
-        model_predictor: model_prediction.ModelPredictor
-    ):
+    def __init__(self, config: PredictPipelineConfig, 
+                 data_ingestor: data_ingestion.DataIngestor, 
+                 data_transformer: data_transformation.DataTransformer, 
+                 model_predictor: model_prediction.ModelPredictor):
         self.config = config
         self.data_ingestor = data_ingestor
         self.data_transformer = data_transformer
@@ -45,7 +45,10 @@ class PredictPipeline:
             dataset = self.data_ingestor.ingest_predict()
 
             logger.info(f'Transforming data with {self.data_transformer.config}')
-            features = self.data_transformer.transform_dataset(dataset, augmented_column, gabor_column, augment=False)
+            features = self.data_transformer.transform_dataset(dataset, 
+                                                               augmented_column, 
+                                                               gabor_column, 
+                                                               augment=False)
 
             logger.info(f'Saving features in {self.config.features_save_path}')
             file_handler.save_features(features, self.config.features_save_path)
@@ -54,7 +57,9 @@ class PredictPipeline:
         model = file_handler.load_model(self.config.model_path)
 
         logger.info(f'Predicting features with config {self.model_predictor.config}')
-        results = self.model_predictor.predict(model, features, augmented_column, gabor_column)
+        results = self.model_predictor.predict(model, features, 
+                                               augmented_column, 
+                                               gabor_column)
 
         logger.info(f'Saving results in {self.config.results_save_path}')
         file_handler.save_result(results, self.config.results_save_path)
