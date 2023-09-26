@@ -1,127 +1,50 @@
 from typing import Callable
 import dataclasses
 from datetime import datetime
-from collections import defaultdict, Counter
+from collections import defaultdict
 
 from src.utils.metrics import metrics
 
 from tqdm import tqdm
 import pandas as pd
-from sklearn.model_selection import GridSearchCV
 from sklearn.feature_selection import SelectKBest
+from sklearn.model_selection import ParameterGrid
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.base import BaseEstimator
 
 @dataclasses.dataclass
 class Model:
-    def __init__(self, model_name: str, model_parameter_grid: dict[list], model):
-        self.model_name = model_name
-        self.model_parameter_grid = model_parameter_grid
-        self.model = model
-
-    def __repr__(self):
-        return f'Model(model_name={self.model_name}, model_parameter_grid={self.model_parameter_grid}, model={self.model})'
-    
-    def __str__(self):
-        return self.__repr__()
+    model_name: str = dataclasses.field()
+    model_parameter_grid: dict[list] = dataclasses.field()
+    model: BaseEstimator = dataclasses.field()
 
 @dataclasses.dataclass
 class ModelTrainerConfig:
-    def __init__(
-        self, 
-        k_features_grid: list[int],
-        use_gabor_grid: list[int],
-        use_augmentation_grid: list[int],
-        feature_selection_score_function: Callable,
-        models: list[Model],
-        id_column: str,
-        target_column: str, 
-        score_criteria: str='accuracy', 
-        cv: int=5,
-    ):
-        self.k_features_grid = k_features_grid
-        self.use_gabor_grid = use_gabor_grid
-        self.use_augmentation_grid = use_augmentation_grid
-        self.feature_selection_score_function = feature_selection_score_function
-        self.models = models
-        self.id_column = id_column
-        self.target_column = target_column
-        self.score_criteria = score_criteria
-        self.cv = cv
-
-    def __repr__(self):
-        return f'ModelTrainerConfig(k_features_grid={self.k_features_grid}, feature_selection_score_function={self.feature_selection_score_function}, models={self.models}, target_column={self.target_column}, score_criteria={self.score_criteria}, cv={self.cv})'
-    
-    def __str__(self):
-        return self.__repr__()
+    k_features_grid: list[int] = dataclasses.field()
+    use_gabor_grid: list[int] = dataclasses.field()
+    use_augmentation_grid: list[int] = dataclasses.field()
+    feature_selection_score_function: Callable = dataclasses.field()
+    models: list[Model] = dataclasses.field()
+    id_column: str = dataclasses.field()
+    target_column: str = dataclasses.field() 
+    score_criteria: str = dataclasses.field(default="accuracy")
 
 class ModelTrainer:
     def __init__(self, config: ModelTrainerConfig):
         self.config = config
 
-    def __create_augmentation_custom_cv(self, train_df: pd.DataFrame):
-        # Shuffle the data as done in GridSearchCV
-        train_image_indices = train_df[self.config.id_column].tolist()
-        train_df_indices = train_df.index.tolist()
-        n_folds = self.config.cv
-        fold_indices = [(train_image_indices[i::n_folds], 
-                         train_df_indices[i::n_folds]) 
-                         for i in range(n_folds)]
-
-        # Gridsearch cv accepts a list of (train_index, test_index) tuples
-        cv_folds = []
-        for i in range(n_folds):
-            train_indices = fold_indices[i]
-            test_indices = []
-
-            for j in range(n_folds):
-                if i != j:
-                    test_indices.append(fold_indices[j])
-
-            test_image_indices, test_df_indices = zip(*test_indices)
-            test_image_indices = [item for sublist in test_image_indices 
-                                  for item in sublist]
-            test_df_indices = [item for sublist in test_df_indices 
-                               for item in sublist]
-            test_indices = (test_image_indices, test_df_indices)
-            cv_folds.append((train_indices, test_indices))
-
-        # Augmented data should be in the same fold as the original data
-        new_cv_folds = []
-        for train_indices, test_indices in cv_folds:
-            current_train_image_indices, current_train_df_indices = train_indices
-            current_test_image_indices, current_test_df_indices = test_indices
-
-            # Data leakage scenario 1: Filter augmented images and their source shared between train and validation set
-            current_repeated_test_image_indices = [index for index in current_test_image_indices 
-                                                   if index in current_train_image_indices]
-            # Data leakage scenario 2: There are augmented images and their source in a validation set
-            test_indices_counter = Counter(current_test_image_indices)
-            current_repeated_test_image_indices += [image_index for image_index, count 
-                                                    in test_indices_counter.items() 
-                                                    if count > 1]
-
-            # Filter out augmented images from the validation set
-            current_repeated_test_df_indices = [df_index for image_index, df_index
-                                                in zip(current_test_image_indices, test_indices[1])
-                                                if image_index in current_repeated_test_image_indices]
-            
-            # Add image indices of test to train
-            new_current_train_indices = current_train_df_indices + current_repeated_test_df_indices
-            new_current_test_indices = [index for index 
-                                        in current_test_df_indices 
-                                        if index not in current_repeated_test_df_indices]
-            new_cv_folds.append((new_current_train_indices, new_current_test_indices))
-        return new_cv_folds, train_df
-    
     def train(self, 
               train_df: pd.DataFrame, 
+              validation_df: pd.DataFrame,
               test_df: pd.DataFrame,
               augmented_column: str, 
               gabor_column: str) -> tuple:
         results = defaultdict(list)
         best_model = None
-        best_model_score = None
+        best_score = -1
+        best_grid = None
+        
         non_feature_columns = [self.config.id_column, 
                                self.config.target_column, 
                                augmented_column, 
@@ -132,58 +55,63 @@ class ModelTrainer:
 
         for use_augmentation in tqdm(self.config.use_augmentation_grid, desc='Augmentation'):
             for use_gabor in tqdm(self.config.use_gabor_grid, desc='Gabor'):
-                current_train_df = train_df.copy()
-                current_test_df = test_df.copy()
-                cv = self.config.cv
 
                 # Filter out rows that don't match the current augmentation/gabor
-                current_train_df = current_train_df[current_train_df[gabor_column] == use_gabor]
-                current_test_df = current_test_df[current_test_df[gabor_column] == use_gabor]
-                current_train_df = current_train_df.drop(columns=[gabor_column])
-                current_test_df = current_test_df.drop(columns=[gabor_column])
+                current_train_df = train_df[train_df[gabor_column] == use_gabor]
+                current_validation_df = validation_df[validation_df[gabor_column] == use_gabor]
+                current_test_df = test_df[test_df[gabor_column] == use_gabor]
 
-                # Create custom cv for augmentation and drop the augmented column
-                if use_augmentation == 1:
-                    shuffled_train_df = current_train_df.sample(frac=1, 
-                                                                random_state=0)
-                    cv, current_train_df = self.__create_augmentation_custom_cv(shuffled_train_df)
-                else:
-                    current_train_df = current_train_df[current_train_df[augmented_column] == use_augmentation]
-                    current_test_df = current_test_df[current_test_df[augmented_column] == use_augmentation]
+                current_train_df = current_train_df.drop(columns=[gabor_column, augmented_column])
+                current_validation_df = current_validation_df.drop(columns=[gabor_column, augmented_column])
+                current_test_df = current_test_df.drop(columns=[gabor_column, augmented_column])
 
-                current_train_df = current_train_df.drop(columns=[augmented_column])
-                current_test_df = current_test_df.drop(columns=[augmented_column])
+                X_train = current_train_df[feature_columns]
+                y_train = current_train_df[self.config.target_column]
+                X_val = current_validation_df[feature_columns]
+                y_val = current_validation_df[self.config.target_column]
+                X_test = current_test_df[feature_columns]
+                y_test = current_test_df[self.config.target_column]
 
                 for model in tqdm(self.config.models, desc='Models'):
+                    best_current_grid_model = None
+                    best_current_grid_score = -1
+
+                    feature_selection_score_function = self.config.feature_selection_score_function
                     pipe = Pipeline([('scaler', MinMaxScaler()),
-                                     ('selector', SelectKBest(self.config.feature_selection_score_function)),
+                                     ('selector', SelectKBest(feature_selection_score_function)),
                                      ('model', model.model)])
 
-                    model_grid = {'model__' + key: value 
-                                  for key, value in 
+                    model_grid = {'model__' + key: value  for key, value in 
                                   model.model_parameter_grid.items()}
-                    select_k_grid = {'selector__k': self.config.k_features_grid.copy()}
+                    select_k_grid = {'selector__k': 
+                                     self.config.k_features_grid.copy()}
                     param_grid = {**model_grid, **select_k_grid}
                     
-                    grid = GridSearchCV(pipe,
-                                        param_grid=param_grid, 
-                                        cv=cv, 
-                                        scoring=self.config.score_criteria,
-                                        verbose=0, 
-                                        n_jobs=-1 )
+                    print()
+                    for grid in ParameterGrid(param_grid):
+                        print(grid)
+                        pipe.set_params(**grid)
 
-                    start_time = datetime.now()
-                    X = current_train_df[feature_columns]
-                    y = current_train_df[self.config.target_column]
-                    grid.fit(X, y)
-                    end_time = datetime.now()
+                        start_time = datetime.now()
+                        pipe.fit(X_train, y_train)
+                        val_score = pipe.score(X_val, y_val)
+                        end_time = datetime.now()
+                        
+                        if val_score > best_current_grid_score:
+                            best_current_grid_model = pipe
+                            best_current_grid_score = val_score
 
-                    prediction = grid.predict(current_test_df[feature_columns])
+                        if val_score > best_score:
+                            best_model = pipe
+                            best_score = val_score
+                            best_grid = grid
+
+                    train_score = best_current_grid_model.score(X_train, y_train)
+                    test_prediction = best_current_grid_model.predict(X_test)
                     
-                    y_test = current_test_df[self.config.target_column].tolist()
-                    TP, TN, FP, FN = metrics.calculate_results(prediction, y_test)
+                    TP, TN, FP, FN = metrics.calculate_results(test_prediction, y_test)
                     classif_report = metrics.classification_report(y_test, 
-                                                                   prediction, 
+                                                                   test_prediction, 
                                                                    output_dict=True)
                     test_weighted_recall_score = classif_report['weighted avg']['recall']
                     test_macro_recall_score = classif_report['macro avg']['recall']
@@ -198,17 +126,14 @@ class ModelTrainer:
                     total_samples = metrics.calculate_total_samples(TP, TN, FP, FN)
                     total_time = end_time - start_time
 
-                    # Save only based on accuracy in the training set
-                    if best_model is None or grid.best_score_ > best_model_score:
-                        best_model = grid.best_estimator_
-                        best_model_score = grid.best_score_
 
-                    saved_params = {**grid.best_params_, 
+                    saved_params = {**best_grid, 
                                     **{'augmentation': use_augmentation, 
                                        'gabor': use_gabor}}
                     results['model_name'].append(model.model_name)
                     results['best_params'].append(saved_params)
-                    results['train_score'].append(grid.best_score_)
+                    results['train_score'].append(train_score)
+                    results['val_score'].append(val_score)
                     results['test_accuracy_score'].append(test_accuracy_score)
                     results['test_macro_f1_score'].append(test_macro_f1_score)
                     results['test_weighted_f1_score'].append(test_weighted_f1_score)

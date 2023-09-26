@@ -28,9 +28,9 @@ def parse_args():
     parser.add_argument('--train_model_save_path', type=str, default=os.path.join('models', 'best_model.pkl'), help='Path to save model')
     parser.add_argument('--train_results_save_path', type=str, default=os.path.join('results', 'results.csv'), help='Path to save results')
     parser.add_argument('--train_features_save_path', type=str, default=os.path.join('data', 'train_features.csv'), help='Path to save train features')
+    parser.add_argument('--validation_features_save_path', type=str, default=os.path.join('data', 'validation_features.csv'), help='Path to save validation features')
     parser.add_argument('--test_features_save_path', type=str, default=os.path.join('data', 'test_features.csv'), help='Path to save test features')
     parser.add_argument('--score_criteria', type=str, default='accuracy', help='Score criteria to select best model')
-    parser.add_argument('--cv', type=int, default=5, help='Number of cross validation folds')
     parser.add_argument('--small_grid', default=False, action='store_true', help='Use small grid for training')
     parser.add_argument('--not_drop_correlated_features', default=False, action='store_true', help='Does not drop correlated features when activated')
     parser.add_argument('--correlated_features_path', type=str, default=os.path.join('data', 'features', 'correlated_features.txt'), help='Path to save correlated features')
@@ -46,7 +46,8 @@ def parse_args():
     return vars(parser.parse_args())
 
 def main(args):
-    random.seed(args['seed'])
+    seed = args['seed']
+    random.seed(seed)
     warnings.filterwarnings('ignore')
     
     color_features = ['has_blue']
@@ -67,6 +68,7 @@ def main(args):
     
     # Data Ingestion
     ingestion_config = data_ingestion.DataIngestionConfig(
+        seed=seed,
         train_data_path=args['train_images_path'],
         test_data_path=args['test_images_path'],
         predict_data_path=args['predict_data_path'],
@@ -100,14 +102,14 @@ def main(args):
             models=train_models,
             id_column=args['id_column'],
             target_column=args['target_column'],
-            score_criteria=args['score_criteria'],
-            cv=args['cv'])
+            score_criteria=args['score_criteria'])
         model_trainer = model_training.ModelTrainer(model_config)
 
         pipeline_config = train_pipeline.TrainPipelineConfig(
             model_save_path=args['train_model_save_path'],
             results_save_path=args['train_results_save_path'],
             train_features_save_path=args['train_features_save_path'],
+            validation_features_save_path=args['validation_features_save_path'],
             test_features_save_path=args['test_features_save_path'],
             cache_features=args['cache_features'],
             logger=logging)

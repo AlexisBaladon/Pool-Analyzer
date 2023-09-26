@@ -1,4 +1,5 @@
 from typing import Callable
+
 import numpy as np
 
 def calculate_mean_histogram(histogram: np.ndarray, numBins: int):
@@ -53,20 +54,18 @@ def calculate_R_histogram(histogram: np.ndarray, _: int):
     R = 1 - 1 / (1 + np.std(histogram)**2)
     return R
 
-histogram_feature_functions = {
-    'mean': calculate_mean_histogram,
-    'std': calculate_std_histogram,
-    'median': calculate_median_histogram,
-    'mode': calculate_mode_histogram,
-    'min': calculate_min_histogram,
-    'max': calculate_max_histogram,
-    'range': calculate_range_histogram,
-    'skewness': calculate_skewness_histogram,
-    'kurtosis': calculate_kurtosis_histogram,
-    'uniformity': calculate_uniformity_histogram,
-    'entropy': calculate_entropy_histogram,
-    'R': calculate_R_histogram, 
-}
+histogram_feature_functions = {'mean': calculate_mean_histogram,
+                               'std': calculate_std_histogram,
+                               'median': calculate_median_histogram,
+                               'mode': calculate_mode_histogram,
+                               'min': calculate_min_histogram,
+                               'max': calculate_max_histogram,
+                               'range': calculate_range_histogram,
+                               'skewness': calculate_skewness_histogram,
+                               'kurtosis': calculate_kurtosis_histogram,
+                               'uniformity': calculate_uniformity_histogram,
+                               'entropy': calculate_entropy_histogram,
+                               'R': calculate_R_histogram}
 
 def create_histogram_features(images: list[tuple], 
                               features_to_extract: list, 

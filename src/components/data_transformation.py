@@ -1,6 +1,8 @@
 import dataclasses
 from typing import Callable
 
+import pandas as pd
+
 try:
     from src.utils.feature_extraction import \
         color_features, channel_features, histogram_features, coocurrence_matrix, gabor
@@ -10,38 +12,20 @@ except ModuleNotFoundError:
         color_features, channel_features, histogram_features, coocurrence_matrix, gabor
     from image_processing import augmentation
 
-import pandas as pd
 
 @dataclasses.dataclass
 class DataTransformationConfig:
-    def __init__(self, color_features: list,
-                 channel_features: list, 
-                 histogram_features: list, 
-                 coocurrence_matrix_features: list,
-                 correlated_features: list,
-                 drop_correlated_features: bool,
-                 positive_class: str,
-                 negative_class: str,
-                 use_augmentation: bool,
-                 to_grayscale: Callable,
-                 to_histogram: Callable):
-        self.color_features = color_features
-        self.channel_features = channel_features
-        self.histogram_features = histogram_features
-        self.coocurrence_matrix_features = coocurrence_matrix_features
-        self.correlated_features = correlated_features
-        self.drop_correlated_features = drop_correlated_features
-        self.positive_class = positive_class
-        self.negative_class = negative_class
-        self.use_augmentation = use_augmentation
-        self.to_grayscale = to_grayscale
-        self.to_histogram = to_histogram
-
-    def __repr__(self):
-        return f'DataTransformationConfig(color_features={self.color_features}, channel_features={self.channel_features}, histogram_features={self.histogram_features}, coocurrence_matrix_features={self.coocurrence_matrix_features}, positive_class={self.positive_class}, negative_class={self.negative_class}, use_augmentation={self.use_augmentation}, to_grayscale={self.to_grayscale}, to_histogram={self.to_histogram})'
-    
-    def __str__(self):
-        return self.__repr__()
+    color_features: list = dataclasses.field()
+    channel_features: list = dataclasses.field()
+    histogram_features: list = dataclasses.field()
+    coocurrence_matrix_features: list = dataclasses.field()
+    correlated_features: list = dataclasses.field()
+    drop_correlated_features: bool = dataclasses.field()
+    positive_class: str = dataclasses.field()
+    negative_class: str = dataclasses.field()
+    use_augmentation: bool = dataclasses.field()
+    to_grayscale: Callable = dataclasses.field()
+    to_histogram: Callable = dataclasses.field()
 
 class DataTransformer:
     def __init__(self, config: DataTransformationConfig):
@@ -172,7 +156,8 @@ class DataTransformer:
                                                 augmented_split_features_color_df, 
                                                 on=['image_id', 'label'])
 
-            augmented_split_features.loc[:, augmented_column] = [1] * len(augmented_split_features)
+            augmented_split_features.loc[:, augmented_column] = \
+                [1] * len(augmented_split_features)
             split_features = pd.concat([split_features, augmented_split_features], 
                                         ignore_index=True)
 
@@ -182,19 +167,31 @@ class DataTransformer:
         return split_features
 
     def transform(self, 
-            train_images: list, 
+            train_images: list,
+            validation_images: list,
             test_images: list, 
             augmented_column: str, 
             gabor_column: str) -> tuple[tuple[pd.DataFrame, pd.DataFrame], list[str]]:
-        train_features = self.transform_dataset(train_images, augmented_column, gabor_column, augment=self.config.use_augmentation)
-        test_features = self.transform_dataset(test_images, augmented_column, gabor_column)
-        return train_features, test_features
+        train_features = self.transform_dataset(train_images, 
+                                                augmented_column, 
+                                                gabor_column, 
+                                                augment=self.config.use_augmentation)
+        validation_features = self.transform_dataset(validation_images, 
+                                                     augmented_column, 
+                                                     gabor_column)
+        test_features = self.transform_dataset(test_images, 
+                                               augmented_column, 
+                                               gabor_column)
+        return train_features, validation_features, test_features
     
     def transform_single_image(self, image) -> pd.DataFrame:
         images = [(0, image, 'test')]
         augmented_column, gabor_column = 'augmented', 'gabor'
         features = self.transform_dataset(images, augmented_column, gabor_column)
-        features = features[features[gabor_column] == 0].drop(columns=[gabor_column, augmented_column, 'image_id', 'label'])
+        features = features[features[gabor_column] == 0].drop(columns=[gabor_column, 
+                                                                       augmented_column, 
+                                                                       'image_id', 
+                                                                       'label'])
         return features
     
     def transform_dataset(self, images: list, 

@@ -50,21 +50,19 @@ def calculate_skewness(image_channel: np.ndarray):
 def calculate_kurtosis(image_channel: np.ndarray):
     return scipy.stats.kurtosis(image_channel, axis=None)
 
-channel_feature_functions = {
-    'mean': calculate_mean,
-    'std': calculate_std,
-    'median': calculate_median,
-    'mode': calculate_mode,
-    'min': calculate_min,
-    'max': calculate_max,
-    'range': calculate_range,
-    'skewness': calculate_skewness,
-    'kurtosis': calculate_kurtosis,
-    'entropy': entropy,
-    'quantile_0.25': lambda img: calculate_quantile(img, q=0.25),
-    'quantile_0.75': lambda img: calculate_quantile(img, q=0.75),
-    'iqr': calculate_iqr,
-}
+channel_feature_functions = {'mean': calculate_mean,
+                             'std': calculate_std,
+                             'median': calculate_median,
+                             'mode': calculate_mode,
+                             'min': calculate_min,
+                             'max': calculate_max,
+                             'range': calculate_range,
+                             'skewness': calculate_skewness,
+                             'kurtosis': calculate_kurtosis,
+                             'entropy': entropy,
+                             'quantile_0.25': lambda img: calculate_quantile(img, q=0.25),
+                             'quantile_0.75': lambda img: calculate_quantile(img, q=0.75),
+                             'iqr': calculate_iqr}
 
 def create_channel_features(images: list, 
                             features_to_extract: list, 
