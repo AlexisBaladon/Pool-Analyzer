@@ -49,9 +49,10 @@ class ModelTrainer:
         current_validation_df = validation_df[validation_df[gabor_column] == use_gabor]
         current_test_df = test_df[test_df[gabor_column] == use_gabor]
 
-        current_train_df = current_train_df.drop(columns=[gabor_column, augmented_column])
-        current_validation_df = current_validation_df.drop(columns=[gabor_column, augmented_column])
-        current_test_df = current_test_df.drop(columns=[gabor_column, augmented_column])
+        to_drop_columns = [gabor_column, augmented_column]
+        current_train_df = current_train_df.drop(columns=to_drop_columns)
+        current_validation_df = current_validation_df.drop(columns=to_drop_columns)
+        current_test_df = current_test_df.drop(columns=to_drop_columns)
 
         X_train = current_train_df[feature_columns]
         y_train = current_train_df[target_column]
@@ -83,7 +84,8 @@ class ModelTrainer:
                         saved_params: dict, 
                         results: dict[str, list]):
         TP, TN, FP, FN = metrics.calculate_results(pred_test, y_test)
-        classif_report = metrics.classification_report(y_test, pred_test, output_dict=True)
+        classif_report = metrics.classification_report(y_test, pred_test, 
+                                                       output_dict=True)
         total_samples = metrics.calculate_total_samples(TP, TN, FP, FN)
         total_time = end_time - start_time
 
@@ -127,6 +129,7 @@ class ModelTrainer:
         best_model = None
         best_score = -1
         
+        feature_selection_score_function = config.feature_selection_score_function
         non_feature_columns = [config.id_column, config.target_column, 
                                augmented_column, gabor_column]
         feature_columns = [col for col in train_df.columns 
@@ -149,8 +152,8 @@ class ModelTrainer:
                     best_current_grid_score = -1
                     best_current_grid = None
 
-                    feature_selection_score_function = config.feature_selection_score_function
-                    pipe = self._build_pipeline(feature_selection_score_function, model)
+                    pipe = self._build_pipeline(feature_selection_score_function, 
+                                                model)
                     param_grid = self._build_grid(model)
                     
                     for grid in ParameterGrid(param_grid): # TODO: Parallelize
@@ -179,8 +182,7 @@ class ModelTrainer:
                     saved_params = {**best_current_grid, 
                                     **{'augmentation': use_augmentation, 
                                        'gabor': use_gabor}}
-                    self._update_results(model, 
-                                         pred_test, y_test,
+                    self._update_results(model, pred_test, y_test,
                                          train_score, val_score, 
                                          start_time, end_time, 
                                          saved_params, 
