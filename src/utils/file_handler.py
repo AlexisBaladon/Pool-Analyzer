@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 
 def save_features(features: pd.DataFrame, features_save_path: str):
-        features.to_csv(features_save_path, index=False)
+    features.to_csv(features_save_path, index=False)
 
 def load_features(features_save_path: str):
     return pd.read_csv(features_save_path)

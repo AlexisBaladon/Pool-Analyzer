@@ -13,6 +13,17 @@ except ModuleNotFoundError:
     from image_processing import augmentation
 
 
+class TransformDataset:
+    def __init__(self, augmented_column, gabor_column):
+        self.augmented_column = augmented_column
+        self.gabor_column = gabor_column
+
+    def __call__(self, args):
+        return self.transform_dataset(args[0], 
+                                      self.augmented_column, 
+                                      self.gabor_column, 
+                                      augment=args[1])
+
 @dataclasses.dataclass
 class DataTransformationConfig:
     color_features: list = dataclasses.field()
@@ -51,9 +62,7 @@ class DataTransformer:
 
     def __transform_labels(self, feature_df: pd.DataFrame, 
                            positive_class: str, negative_class: str):
-        label_to_int = lambda label: 1 if label == positive_class \
-                                     else 0 if label == negative_class \
-                                     else None
+        label_to_int = lambda label: 1 if label == positive_class else 0
         feature_df.loc[:, 'label'] = feature_df['label'].apply(label_to_int)
         return feature_df
 
@@ -172,16 +181,19 @@ class DataTransformer:
             test_images: list, 
             augmented_column: str, 
             gabor_column: str) -> tuple[tuple[pd.DataFrame, pd.DataFrame], list[str]]:
-        train_features = self.transform_dataset(train_images, 
-                                                augmented_column, 
-                                                gabor_column, 
-                                                augment=self.config.use_augmentation)
-        validation_features = self.transform_dataset(validation_images, 
-                                                     augmented_column, 
-                                                     gabor_column)
-        test_features = self.transform_dataset(test_images, 
-                                               augmented_column, 
-                                               gabor_column)
+        results = []
+        datasets_to_transform = [(train_images, self.config.use_augmentation), 
+                                 (validation_images, False), 
+                                 (test_images, False)]
+        
+        for (image_set, augment) in datasets_to_transform:
+            transformed_dataset = self.transform_dataset(image_set,
+                                                         augmented_column, 
+                                                         gabor_column, 
+                                                         augment=augment)
+            results.append(transformed_dataset)
+
+        train_features, validation_features, test_features = results
         return train_features, validation_features, test_features
     
     def transform_single_image(self, image) -> pd.DataFrame:

@@ -55,11 +55,11 @@ class ModelTrainer:
         current_test_df = current_test_df.drop(columns=to_drop_columns)
 
         X_train = current_train_df[feature_columns]
-        y_train = current_train_df[target_column]
+        y_train = current_train_df[target_column].astype(int)
         X_val = current_validation_df[feature_columns]
-        y_val = current_validation_df[target_column]
+        y_val = current_validation_df[target_column].astype(int)
         X_test = current_test_df[feature_columns]
-        y_test = current_test_df[target_column]
+        y_test = current_test_df[target_column].astype(int)
 
         return (X_train, y_train), (X_val, y_val), (X_test, y_test)
         
@@ -160,6 +160,7 @@ class ModelTrainer:
                         pipe.set_params(**grid)
 
                         start_time = datetime.now()
+                        print(y_train)
                         pipe.fit(X_train, y_train)
                         val_score = pipe.score(X_val, y_val)
                         end_time = datetime.now()
