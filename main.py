@@ -23,8 +23,9 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=0, help='Random seed')
 
     # Train pipeline arguments
-    parser.add_argument('--train_images_path', type=str, default=os.path.join('data', 'train'), help='Path to train images')
-    parser.add_argument('--test_images_path', type=str, default=os.path.join('data', 'validation'), help='Path to test images')
+    parser.add_argument('--train_images_path', type=str, default=os.path.join('data', 'datasets', 'yacine', 'custom_splits', 'train'), help='Path to train images')
+    parser.add_argument('--val_images_path', type=str, default=os.path.join('data', 'datasets', 'yacine', 'custom_splits', 'validation'), help='Path to validate images')
+    parser.add_argument('--test_images_path', type=str, default=os.path.join('data', 'datasets', 'yacine', 'original_splits', 'validation'), help='Path to test images')
     parser.add_argument('--train_model_save_path', type=str, default=os.path.join('models', 'best_model.pkl'), help='Path to save model')
     parser.add_argument('--train_results_save_path', type=str, default=os.path.join('results', 'results.csv'), help='Path to save results')
     parser.add_argument('--train_features_save_path', type=str, default=os.path.join('data', 'train_features.csv'), help='Path to save train features')
@@ -51,14 +52,40 @@ def main(args):
     warnings.filterwarnings('ignore')
     
     color_features = ['has_blue']
-    channel_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 'range', 
-                        'skewness', 'kurtosis', 'entropy', 
-                        'quantile_0.25', 'quantile_0.75', 'iqr']
-    histogram_features = ['mean', 'std', 'median', 'mode', 'min', 'max', 
-                          'range', 'skewness', 'kurtosis', 'entropy', 'R']
-    coocurrence_matrix_features = ['contrast', 'dissimilarity', 
-                                   'homogeneity', 'energy', 'correlation']
+
+    channel_features = ['mean',
+                        'std',
+                        'median',
+                        'mode',
+                        'min',
+                        'max',
+                        'range', 
+                        'skewness',
+                        'kurtosis',
+                        'entropy', 
+                        'quantile_0.25', 
+                        'quantile_0.75', 
+                        'iqr']
     
+    histogram_features = ['mean', 
+                          'std', 
+                          'median', 
+                          'mode', 
+                          'min', 
+                          'max', 
+                          'range', 
+                          'skewness', 
+                          'kurtosis', 
+                          'uniformity', 
+                          'entropy', 
+                          'R']
+    
+    coocurrence_matrix_features = ['contrast', 
+                                   'dissimilarity',
+                                   'homogeneity', 
+                                   'energy', 
+                                   'correlation']
+
     with open(args['correlated_features_path'], 'r') as f:
         correlated_features = [t.strip() for t in f.readlines()]
 
@@ -68,8 +95,8 @@ def main(args):
     
     # Data Ingestion
     ingestion_config = data_ingestion.DataIngestionConfig(
-        seed=seed,
         train_data_path=args['train_images_path'],
+        val_data_path=args['val_images_path'],
         test_data_path=args['test_images_path'],
         predict_data_path=args['predict_data_path'],
         load_images=image_handler.load_image)
@@ -127,9 +154,7 @@ def main(args):
             use_gabor=args['use_gabor'],
             feature_selection_score_function=mutual_info_classif,
             id_column=args['id_column'],
-            target_column=args['target_column'],
-            score_criteria=args['score_criteria'],
-            cv=args['cv'])
+            target_column=args['target_column'])
         model_predictor = model_prediction.ModelPredictor(model_config)
 
         pipeline_config = predict_pipeline.PredictPipelineConfig(

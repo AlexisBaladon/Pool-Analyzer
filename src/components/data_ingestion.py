@@ -7,9 +7,9 @@ from sklearn.model_selection import train_test_split
 @dataclasses.dataclass
 class DataIngestionConfig:
     load_images: Callable[[str], str] = dataclasses.field()
-    seed: str = dataclasses.field()
     val_ratio: float = dataclasses.field(default=0.2)
     train_data_path: str = dataclasses.field(default=None)
+    val_data_path: str = dataclasses.field(default=None)
     test_data_path: str = dataclasses.field(default=None)
     predict_data_path: str = dataclasses.field(default=None)
 
@@ -33,14 +33,11 @@ class DataIngestor:
     def ingest_train(self) -> tuple[list]:
         train_images = self.ingest_dataset(self.config.train_data_path, 
                                            self.config.load_images)
+        val_images = self.ingest_dataset(self.config.val_data_path, 
+                                          self.config.load_images)
         test_images = self.ingest_dataset(self.config.test_data_path, 
                                           self.config.load_images)
         
-        total_images = len(train_images) + len(test_images)
-        val_ratio = self.config.val_ratio * total_images / total_images
-        train_images, val_images = train_test_split(train_images, 
-                                      test_size=val_ratio,
-                                      random_state=self.config.seed)
 
         return train_images, val_images, test_images
     
