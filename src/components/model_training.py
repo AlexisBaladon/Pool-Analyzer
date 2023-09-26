@@ -160,7 +160,6 @@ class ModelTrainer:
                         pipe.set_params(**grid)
 
                         start_time = datetime.now()
-                        print(y_train)
                         pipe.fit(X_train, y_train)
                         val_score = pipe.score(X_val, y_val)
                         end_time = datetime.now()
