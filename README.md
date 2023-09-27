@@ -1,75 +1,65 @@
-## Integrantes:
+## Participants:
 
 - Alexis Baladón
 - Ignacio Viscardi
 - Facundo Pedreira
 
-## Página web:
+## Webpage:
 
-La página web fue creada con Angular y se encuentra hosteada en:
+The webpage was developed using Angular and is hosted in:
 
 https://alexisbaladon.pages.fing.edu.uy/timag-presentation
 
-Todas las rutas utilizadas son relativas, pero en caso de cambiar algun directorio del proyecto
-podrían ser de interés los siguientes archivos:
+## Program Instructions:
 
-- .gitlab-ci.yml (raíz): Pipeline de CI/CD
-- package.json (src/page): Tiene ruta de proyecto (--base-href=/timag-presentation/")
-- angular.json (src/page): Tiene ruta de output de build ("outputPath": "../../public")
-
-## Instrucciones de programa:
-
-Para instalar las dependencias, debe ejecutar el siguiente comando:
+To install dependencies, it is necessary to run the following command:
 'pip install -r requirements.txt'
 
-El software del proyecto está dividido en varias notebooks y un programa principal.
+This software is divided in multiple notebooks and a main program.
 
-Los directorios presentes son los siguientes:
-- data: Contiene los conjuntos de datos y datos de cache.
-- logs: Contiene registros de ejecuciones del programa
-- models: Contiene la grilla de modelos y el binario del mejor modelo de train dumpeado con la librería pickle.
-- notebooks: Contiene notebooks de las 3 etapas mostradas en la sección de solución de la página: Clasificación, Segmentación y Aplicación.
-- results: Contiene tablas de resultados de clasificación y segmentación.
-- scripts: Contiene el script usado para cambiar el formato del conjunto de datos Algarve's al formato del proyecto. 
-Además se encuentran notebooks para entrenar al modelo neuronal profundo, la baseline, y el modelo zero-shot utilizado para clasificar
-de forma artificial el conjunto de datos de Algarve's fragmentado.
-- src: Aquí se encuentra el programa principal de entrenamiento estructurado con arquitectura de pipeline (ingestión, transformación, entrenamiento y evaluación).
+This is the description of each directory:
+- data: Contains the datasets and cache.
+- logs: Contains a register of prorgam executions.
+- models: Contains the model hyperparameter grid and the best model binary file.
+- notebooks: Contains notebook from each 3 stages of the final solution: Classification, Segmentation and application.
+- results: Contains tables with results of classification and segmentation.
+- scripts: Contains the script used to change the format of the Algarve's Dataset to the expected project format, and the notebook used to fragment and classify each fragment of the dataset. Aditionally, there are scripts to train the optimal and baseline model.
+- src: Contains the main training program which was built using a pipeline architecture (ingestion, transformation, training and evaluation).
 
-### Conjuntos de datos:
-Los conjuntos de datos utilizados en el proyecto son:
+### Datasets:
+The datasets used in the project are:
 - Pool-dectection: https://github.com/yacine-benbaccar/Pool-Detection/tree/master
 - Algarve's Dataset: https://www.kaggle.com/datasets/cici118/swimming-pool-detection-algarves-landscape
 - Unidad de Información Geográfica: https://intgis.montevideo.gub.uy/sit/mapserv/data/fotos_2021/J-29-C-5-N-3.jpg
 
-### Script de Entrenamiento:
-Para reproducir las pruebas de entrenamiento implementadas en el directorio src,
-pueden ser de ayuda los siguientes comandos:
+### Training Script:
+To reproduce the training tests implemented in src, the following commands will be of aid:
 
-- Mostrar descripción de flags:
+- Show flags description:
 
 ```
 'python main.py --help
 ```
 
-- Entrenar modelo en dirección de entrenamiento por defecto (conjunto de Pool-Detection)
+- Train the model in the default training dataset (yacine)
 
 ```
 'python main.py --train
 ```
 
-- Evaluar modelo en dirección de evaluación por defecto (conjunto de Algarve's fragmentado)
+- Evaluate the trained model using the default evaluation dataset (fragmented Algarve's)
 
 ```
 'python main.py --predict
 ```
 
-- Utilizar caché de features luego de entrenar/evaluar:
+- Use cached features:
 
 ```
 py main.py --train --cache_features
 ```
 
-- Probar entrenamiento con grilla de tamaño 1:
+- Train with a small and fast grid:
 
 ```
 py main.py --train --small_grid
