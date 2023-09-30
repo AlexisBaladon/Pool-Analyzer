@@ -4,16 +4,62 @@
 - Ignacio Viscardi
 - Facundo Pedreira
 
+# Features:
+
+**Detection**:
+- Exploratory Data Analysis (EDA) for yacine train dataset.
+- Implementation of a training pipeline to train a grid of models and parameters.
+- Implementation of a predict pipeline to predict and evaluate a dataset given a trained model.
+
+- Cache of feature extraction in order to save runtime.
+- Data augmentation
+- Cross validation which was now migrated to a holdout dataset.
+
+**Segmentation**:
+- Swimming Pool segmentation using K-means on RGB values, erosion/delation and HSV information for blue regions.
+- Experiments with different methods such as otsu thresholding.
+
+**Application**:
+- Application of both functionalities using satellite images from Uruguay.
+
+<br>
+<img style="" src="./readme/results/output.png" width="550px">
+
 ## Webpage:
 
-The webpage was developed using Angular and is hosted in:
+The presentation webpage was developed using Angular and is hosted in:
 
 https://alexisbaladon.pages.fing.edu.uy/timag-presentation
+
+# Libraries
+### Image Processing
+
+- [OpenCV] - For computer vision features.
+- [tensorflow] - Deep Learning library used for pretrained models.
+- [scikit-learn] - For dataset splitting, models, hyperparameter tuning and evaluation.
+- [pandas] - Library for structured data manipulation.
+- [matplotlib] - Plot functionalities for data analysis
+- [seaborn] - Wrapper around matplotlib to make the analysis faster.
+
+![openCV](./readme/icons/openCV.png)
+![tensorflow](./readme/icons/tensorflow.png)
+![scikit-learn](./readme/icons/sklearn.png)
+![pandas](./readme/icons/pandas.png)
+![matplotlib](./readme/icons/matplotlib.png)
+![seaborn](./readme/icons/seaborn.png)
+
+
+### Datasets:
+The datasets used in the project are:
+- Pool-dectection: https://github.com/yacine-benbaccar/Pool-Detection/tree/master
+- Algarve's Dataset: https://www.kaggle.com/datasets/cici118/swimming-pool-detection-algarves-landscape
+- Unidad de Información Geográfica: https://intgis.montevideo.gub.uy/sit/mapserv/data/fotos_2021/J-29-C-5-N-3.jpg
 
 ## Program Instructions:
 
 To install dependencies, it is necessary to run the following command:
-'pip install -r requirements.txt'
+
+```pip install -r requirements.txt```
 
 This software is divided in multiple notebooks and a main program.
 
@@ -25,12 +71,6 @@ This is the description of each directory:
 - results: Contains tables with results of classification and segmentation.
 - scripts: Contains the script used to change the format of the Algarve's Dataset to the expected project format, and the notebook used to fragment and classify each fragment of the dataset. Aditionally, there are scripts to train the optimal and baseline model.
 - src: Contains the main training program which was built using a pipeline architecture (ingestion, transformation, training and evaluation).
-
-### Datasets:
-The datasets used in the project are:
-- Pool-dectection: https://github.com/yacine-benbaccar/Pool-Detection/tree/master
-- Algarve's Dataset: https://www.kaggle.com/datasets/cici118/swimming-pool-detection-algarves-landscape
-- Unidad de Información Geográfica: https://intgis.montevideo.gub.uy/sit/mapserv/data/fotos_2021/J-29-C-5-N-3.jpg
 
 ### Training Script:
 To reproduce the training tests implemented in src, the following commands will be of aid:
