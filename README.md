@@ -4,6 +4,23 @@
 - Ignacio Viscardi
 - Facundo Pedreira
 
+# Libraries
+### Image Processing
+
+- [OpenCV] - For computer vision features.
+- [tensorflow] - Deep Learning library used for pretrained models.
+- [scikit-learn] - For dataset splitting, models, hyperparameter tuning and evaluation.
+- [pandas] - Library for structured data manipulation.
+- [matplotlib] - Plot functionalities for data analysis
+- [seaborn] - Wrapper around matplotlib to make the analysis faster.
+
+![openCV](./readme/icons/openCV.png)
+![tensorflow](./readme/icons/tensorflow.png)
+![scikit-learn](./readme/icons/sklearn.png)
+![pandas](./readme/icons/pandas.png)
+![matplotlib](./readme/icons/matplotlib.png)
+![seaborn](./readme/icons/seaborn.png)
+
 # Features:
 
 **Detection**:
@@ -39,24 +56,6 @@
 The presentation webpage was developed using Angular and is hosted in:
 
 https://alexisbaladon.pages.fing.edu.uy/timag-presentation
-
-# Libraries
-### Image Processing
-
-- [OpenCV] - For computer vision features.
-- [tensorflow] - Deep Learning library used for pretrained models.
-- [scikit-learn] - For dataset splitting, models, hyperparameter tuning and evaluation.
-- [pandas] - Library for structured data manipulation.
-- [matplotlib] - Plot functionalities for data analysis
-- [seaborn] - Wrapper around matplotlib to make the analysis faster.
-
-![openCV](./readme/icons/openCV.png)
-![tensorflow](./readme/icons/tensorflow.png)
-![scikit-learn](./readme/icons/sklearn.png)
-![pandas](./readme/icons/pandas.png)
-![matplotlib](./readme/icons/matplotlib.png)
-![seaborn](./readme/icons/seaborn.png)
-
 
 ### Datasets:
 The datasets used in the project are:
