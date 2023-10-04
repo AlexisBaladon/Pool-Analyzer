@@ -15,15 +15,24 @@
 - Data augmentation
 - Cross validation which was now migrated to a holdout dataset.
 
+<br>
+<img style="" src="./readme/results/pipeline.png" width="550px">
+<br>
+
 **Segmentation**:
 - Swimming Pool segmentation using K-means on RGB values, erosion/delation and HSV information for blue regions.
 - Experiments with different methods such as otsu thresholding.
+
+<br>
+<img style="" src="./readme/results/knn.png" width="550px">
+<br>
 
 **Application**:
 - Application of both functionalities using satellite images from Uruguay.
 
 <br>
 <img style="" src="./readme/results/output.png" width="550px">
+<br>
 
 ## Webpage:
 
