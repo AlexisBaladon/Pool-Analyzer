@@ -7,7 +7,7 @@
 # Libraries
 
 - [scikit-learn] - For dataset splitting, models, hyperparameter tuning and evaluation.
-- [tensorflow] - Deep Learning library for pretrained models and utilities.
+- [tensorflow] - Deep Learning library for model training and utilities.
 - [transformers] - Deep Learning library for pretrained models.
 - [OpenCV] - For computer vision features.
 - [pandas] - Library for structured data manipulation.
@@ -42,7 +42,7 @@
 <br>
 
 ## **Segmentation**:
-- Swimming Pool segmentation using `K-means` on RGB values, erosion/delation and HSV information for blue regions.
+- Swimming Pool segmentation using `K-means` on RGB values, erosion + dilation (opening) and HSV information for blue regions.
 - Experiments with different methods such as otsu thresholding.
 
 <br>
